@@ -19,11 +19,12 @@ const ConfirmEventPage = () => {
   // JWT token from URL query params
   const [token, setToken] = useState("");
   // Pre-populate form with data from JWT token
-  const [event, setEvent] = useState({ name: "", details: "" });
+  const [event, setEvent] = useState({ id: "", name: "", details: "" });
   const [reminder, setReminder] = useState({ name: "", confirmBefore: "" });
   const [user, setUser] = useState({ name: "", email: "" });
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(false);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -38,7 +39,7 @@ const ConfirmEventPage = () => {
     try {
       // TODO: Validate token
       const payload = jwtDecode(token) as {
-        event: { name: string; details: string };
+        event: { id: string; name: string; details: string };
         reminder: { name: string; confirmBefore: string };
         user: { name: string; email: string };
       };
@@ -55,7 +56,7 @@ const ConfirmEventPage = () => {
   async function confirm() {
     // TODO: Show loading state
     await client.events[":id"].$post({
-      param: { id: "00" },
+      param: { id: event.id },
       json: { token },
     });
   }
@@ -63,8 +64,8 @@ const ConfirmEventPage = () => {
   async function unregister() {
     // TODO: Show loading state
     await client.events[":id"].$delete({
-      param: { id: "00" },
-      json: { token, reason: "TODO" },
+      param: { id: event.id },
+      json: { token, reason },
     });
   }
 
@@ -90,7 +91,11 @@ const ConfirmEventPage = () => {
             {isCanceling ? (
               <div className="space-y-2">
                 <Label htmlFor="reason">Motif de la désinscription</Label>
-                <Textarea id="reason" placeholder="Je ne peux plus venir..." />
+                <Textarea
+                  id="reason"
+                  placeholder="Je ne peux plus venir..."
+                  onChange={(e) => setReason(e.target.value)}
+                />
               </div>
             ) : (
               <>
