@@ -11,15 +11,19 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-// import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
 
 const ConfirmEventPage = () => {
   const location = useLocation();
+  // JWT token from URL query params
   const [token, setToken] = useState("");
+  // Pre-populate form with data from JWT token
   const [event, setEvent] = useState({ name: "", details: "" });
   const [reminder, setReminder] = useState({ name: "", confirmBefore: "" });
   const [user, setUser] = useState({ name: "", email: "" });
+  // Canceling state (for UI)
+  const [isCanceling, setIsCanceling] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -57,7 +61,7 @@ const ConfirmEventPage = () => {
   }
 
   async function unregister() {
-    // TODO: Show loading state & confirmation page
+    // TODO: Show loading state
     await client.events[":id"].$delete({
       param: { id: "00" },
       json: { token, reason: "TODO" },
@@ -67,58 +71,72 @@ const ConfirmEventPage = () => {
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100 p-4 min-h-screen min-w-screen">
       <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 my-12">
-        Inscription au théâtre 🎭
+        {isCanceling
+          ? "Désinscription du théâtre 🎭"
+          : "Inscription au théâtre 🎭"}
       </h1>
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl">{event.name}</CardTitle>
           <CardTitle className="font-medium">{event.details}</CardTitle>
           <CardDescription>
-            Vous êtes pré-inscrit à ce spectacle; veuillez confirmer avant le
-            {reminder.confirmBefore} pour valider définitivement, faute de quoi
-            votre place sera réattribuée.
+            {isCanceling
+              ? "Vous êtes sur le point de vous désinscrire de ce spectacle. Renseignez le motif de votre désinscription et cliquez sur le bouton ci-dessous pour confirmer."
+              : `Vous êtes pré-inscrit à ce spectacle; veuillez confirmer avant le ${reminder.confirmBefore} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Votre nom</Label>
-              <Input
-                id="name"
-                placeholder="Monsieur Saly"
-                value={user.name}
-                disabled
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Votre adresse mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="adrien.saly@ac-nice.fr"
-                value={user.email}
-                disabled
-              />
-            </div>
+            {isCanceling ? (
+              <div className="space-y-2">
+                <Label htmlFor="reason">Motif de la désinscription</Label>
+                <Textarea id="reason" placeholder="Je ne peux plus venir..." />
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Votre nom</Label>
+                  <Input
+                    id="name"
+                    placeholder="Monsieur Saly"
+                    value={user.name}
+                    disabled
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Votre adresse mail</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="adrien.saly@ac-nice.fr"
+                    value={user.email}
+                    disabled
+                  />
+                </div>
+              </>
+            )}
             <div className="flex space-x-4 pt-4">
-              <Button className="flex-1" onClick={confirm}>
-                CONFIRMER
-              </Button>
+              {isCanceling ? (
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  onClick={() => setIsCanceling(false)}
+                >
+                  ANNULER
+                </Button>
+              ) : (
+                <Button className="flex-1" onClick={confirm}>
+                  CONFIRMER
+                </Button>
+              )}
               <Button
                 className="flex-1"
                 variant="destructive"
-                onClick={unregister}
+                onClick={isCanceling ? unregister : () => setIsCanceling(true)}
               >
-                SE DÉSINSCRIRE
+                {isCanceling ? "CONFIRMER LA DÉSINSCRIPTION" : "SE DÉSINSCRIRE"}
               </Button>
             </div>
-            {/* <div className="space-y-2">
-            <Label htmlFor="reason">Reason for Unsubscribing</Label>
-            <Textarea
-              id="reason"
-              placeholder="Tell us why you are unsubscribing..."
-            />
-          </div> */}
           </div>
         </CardContent>
       </Card>
