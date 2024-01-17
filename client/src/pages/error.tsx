@@ -11,7 +11,7 @@ export default function Error() {
     if (queryParams.has("error")) {
       setError(queryParams.get("error")!);
     }
-    if (queryParams.has("errorDetails")) {
+    if (queryParams.has("details")) {
       setErrorDetails(queryParams.get("details")!);
     }
   }, []);

@@ -5,6 +5,7 @@ import "./index.css";
 
 import ConfirmEventPage from "./pages/confirm";
 import Error from "./pages/error";
+import Success from "./pages/success";
 
 const router = createBrowserRouter([
   {
@@ -13,6 +14,10 @@ const router = createBrowserRouter([
   {
     path: "/confirm",
     element: <ConfirmEventPage />,
+  },
+  {
+    path: "/success",
+    element: <Success />,
   },
 ]);
 
