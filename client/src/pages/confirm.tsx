@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import {
   Card,
@@ -14,9 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
 
+// TODO: Add global loading state to avoid flashing content
 const ConfirmEventPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toError, toSuccess } = redirect(navigate);
+
   // JWT token from URL query params
   const [token, setToken] = useState("");
   // Pre-populate form with data from JWT token
@@ -32,15 +37,10 @@ const ConfirmEventPage = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const token = queryParams.get("token");
-
-    if (!token) {
-      // TODO: Redirect to error page
-      return console.error("No JWT token provided");
-    }
+    if (!token) return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
     setToken(token);
 
     try {
-      // TODO: Validate token
       const payload = jwtDecode(token) as {
         event: { id: string; name: string; details: string };
         reminder: { name: string; confirmBefore: string };
@@ -51,8 +51,9 @@ const ConfirmEventPage = () => {
       setReminder(payload.reminder);
       setUser(payload.user);
     } catch (err) {
-      // TODO: Redirect to error page & send error to Sentry
-      console.error("Invalid JWT token:", err);
+      // TODO: Sentry
+      console.error(err);
+      return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
     }
   }, [location.search]);
 
@@ -62,16 +63,16 @@ const ConfirmEventPage = () => {
       param: { id: event.id },
       json: { token },
     });
-    // TODO: Redirect to success page (or error page)
+    toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
   }
 
-  async function unregister() {
+  async function cancel() {
     setIsLoading(true);
     await client.events[":id"].$delete({
       param: { id: event.id },
       json: { token, reason },
     });
-    // TODO: Redirect to success page (or error page)
+    toSuccess(SUCCESS.REGISTRATION_CANCELED);
   }
 
   return (
@@ -150,7 +151,7 @@ const ConfirmEventPage = () => {
               <Button
                 className="flex-1"
                 variant="destructive"
-                onClick={isCanceling ? unregister : () => setIsCanceling(true)}
+                onClick={isCanceling ? cancel : () => setIsCanceling(true)}
                 disabled={isLoading}
               >
                 {isLoading && isCanceling && (

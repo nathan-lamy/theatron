@@ -9,7 +9,12 @@ import Success from "./pages/success";
 
 const router = createBrowserRouter([
   {
+    // TODO: Not found page
     errorElement: <Error />,
+  },
+  {
+    path: "/error",
+    element: <Error />,
   },
   {
     path: "/confirm",

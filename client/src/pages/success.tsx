@@ -1,20 +1,7 @@
-import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function Success() {
-  const [message, setMessage] = useState("Opération réussie !");
-  const [details, setDetails] = useState(
-    "L'opération a été effectuée avec succès. Vous pouvez fermer cette page."
-  );
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    if (queryParams.has("message")) {
-      setDetails(queryParams.get("message")!);
-    }
-    if (queryParams.has("details")) {
-      setMessage(queryParams.get("details")!);
-    }
-  }, []);
+  const { state } = useLocation();
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-green-100 dark:bg-green-900">
@@ -22,9 +9,12 @@ export default function Success() {
         <div className="text-center">
           <CheckIcon className="h-12 w-12 text-green-500 mx-auto" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            {message}
+            {state?.message?.title || "Opération réussie !"}
           </h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{details}</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            {state?.message?.message ||
+              "L'opération a été effectuée avec succès. Vous pouvez fermer cette page."}
+          </p>
         </div>
       </div>
     </div>

@@ -1,20 +1,7 @@
-import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function Error() {
-  const [error, setError] = useState("Erreur interne !");
-  const [errorDetails, setErrorDetails] = useState(
-    "Une erreur interne est survenue. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter votre professeur par mail."
-  );
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    if (queryParams.has("error")) {
-      setError(queryParams.get("error")!);
-    }
-    if (queryParams.has("details")) {
-      setErrorDetails(queryParams.get("details")!);
-    }
-  }, []);
+  const { state } = useLocation();
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">
@@ -22,10 +9,11 @@ export default function Error() {
         <div className="text-center">
           <FileWarningIcon className="h-12 w-12 text-red-500 mx-auto" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            {error}
+            {state?.error?.title || "Erreur interne !"}
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            {errorDetails}
+            {state?.error?.details ||
+              "Une erreur interne est survenue. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter votre professeur par mail."}
           </p>
         </div>
       </div>
