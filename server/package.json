@@ -5,7 +5,9 @@
   },
   "dependencies": {
     "hono": "^3.10.1",
-    "@hono/zod-validator": "^0.1.11"
+    "@hono/zod-validator": "^0.1.11",
+    "googleapis": "^131.0.0",
+    "@google-cloud/local-auth": "^3.0.1"
   },
   "devDependencies": {
     "bun-types": "^1.0.7"
