@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const ConfirmEventPage = () => {
   const location = useLocation();
@@ -25,6 +26,8 @@ const ConfirmEventPage = () => {
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(false);
   const [reason, setReason] = useState("");
+  // Loading state for API calls (button disabled)
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -54,19 +57,21 @@ const ConfirmEventPage = () => {
   }, [location.search]);
 
   async function confirm() {
-    // TODO: Show loading state
+    setIsLoading(true);
     await client.events[":id"].$post({
       param: { id: event.id },
       json: { token },
     });
+    // TODO: Redirect to success page (or error page)
   }
 
   async function unregister() {
-    // TODO: Show loading state
+    setIsLoading(true);
     await client.events[":id"].$delete({
       param: { id: event.id },
       json: { token, reason },
     });
+    // TODO: Redirect to success page (or error page)
   }
 
   return (
@@ -126,11 +131,19 @@ const ConfirmEventPage = () => {
                   className="flex-1"
                   variant="outline"
                   onClick={() => setIsCanceling(false)}
+                  disabled={isLoading}
                 >
                   ANNULER
                 </Button>
               ) : (
-                <Button className="flex-1" onClick={confirm}>
+                <Button
+                  className="flex-1"
+                  onClick={confirm}
+                  disabled={isLoading}
+                >
+                  {isLoading && (
+                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   CONFIRMER
                 </Button>
               )}
@@ -138,7 +151,11 @@ const ConfirmEventPage = () => {
                 className="flex-1"
                 variant="destructive"
                 onClick={isCanceling ? unregister : () => setIsCanceling(true)}
+                disabled={isLoading}
               >
+                {isLoading && isCanceling && (
+                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 {isCanceling ? "CONFIRMER LA DÉSINSCRIPTION" : "SE DÉSINSCRIRE"}
               </Button>
             </div>
