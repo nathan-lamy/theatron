@@ -74,7 +74,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-#root {
-  @apply min-w-full;
-}
