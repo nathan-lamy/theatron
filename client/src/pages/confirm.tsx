@@ -11,10 +11,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
+import { client } from "@/lib/api";
 
 const ConfirmEventPage = () => {
   const location = useLocation();
+  const [token, setToken] = useState("");
   const [event, setEvent] = useState({ name: "", details: "" });
   const [reminder, setReminder] = useState({ name: "", confirmBefore: "" });
   const [user, setUser] = useState({ name: "", email: "" });
@@ -27,6 +29,7 @@ const ConfirmEventPage = () => {
       // TODO: Redirect to error page
       return console.error("No JWT token provided");
     }
+    setToken(token);
 
     try {
       // TODO: Validate token
@@ -44,6 +47,22 @@ const ConfirmEventPage = () => {
       console.error("Invalid JWT token:", err);
     }
   }, [location.search]);
+
+  async function confirm() {
+    // TODO: Show loading state
+    await client.events[":id"].$post({
+      param: { id: "00" },
+      json: { token },
+    });
+  }
+
+  async function unregister() {
+    // TODO: Show loading state & confirmation page
+    await client.events[":id"].$delete({
+      param: { id: "00" },
+      json: { token, reason: "TODO" },
+    });
+  }
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100 p-4 min-h-screen min-w-screen">
@@ -82,8 +101,14 @@ const ConfirmEventPage = () => {
               />
             </div>
             <div className="flex space-x-4 pt-4">
-              <Button className="flex-1">CONFIRMER</Button>
-              <Button className="flex-1" variant="destructive">
+              <Button className="flex-1" onClick={confirm}>
+                CONFIRMER
+              </Button>
+              <Button
+                className="flex-1"
+                variant="destructive"
+                onClick={unregister}
+              >
                 SE DÉSINSCRIRE
               </Button>
             </div>

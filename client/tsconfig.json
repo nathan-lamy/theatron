@@ -23,7 +23,8 @@
     /* UI */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@server/*": ["../server/src/*"]
     }
   },
   "references": [{ "path": "./tsconfig.node.json" }]
