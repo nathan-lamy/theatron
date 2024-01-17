@@ -101,7 +101,7 @@ const ConfirmEventPage = () => {
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Made with
           <span className="text-red-500"> ❤ </span>
-          by Nathan for Monsieur Saly{"\n          "}
+          by Nathan for Mister Saly{"\n          "}
         </p>
         <a
           className="text-blue-500 hover:underline"
