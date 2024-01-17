@@ -4,11 +4,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 import ConfirmEventPage from "./pages/confirm";
+import Error from "./pages/error";
 
 const router = createBrowserRouter([
   {
-    // TODO: Error
-    errorElement: <div>Not Found</div>,
+    errorElement: <Error />,
   },
   {
     path: "/confirm",

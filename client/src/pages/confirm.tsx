@@ -88,7 +88,7 @@ const ConfirmEventPage = () => {
           <CardDescription>
             {isCanceling
               ? "Vous êtes sur le point de vous désinscrire de ce spectacle. Renseignez le motif de votre désinscription et cliquez sur le bouton ci-dessous pour confirmer."
-              : `Vous êtes pré-inscrit à ce spectacle; veuillez confirmer avant le ${reminder.confirmBefore} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
+              : `Vous êtes pré-inscrit à ce spectacle. Veuillez confirmer avant le ${reminder.confirmBefore} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
