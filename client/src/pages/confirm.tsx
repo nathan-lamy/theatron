@@ -25,8 +25,8 @@ const ConfirmEventPage = () => {
   // JWT token from URL query params
   const [token, setToken] = useState("");
   // Pre-populate form with data from JWT token
-  const [event, setEvent] = useState({ id: "", name: "", details: "" });
-  const [reminder, setReminder] = useState({ name: "", confirmBefore: "" });
+  const [event, setEvent] = useState({ id: "", title: "", details: "" });
+  const [reminder, setReminder] = useState({ name: "", confirmBeforeDate: "" });
   const [user, setUser] = useState({ name: "", email: "" });
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(false);
@@ -42,8 +42,8 @@ const ConfirmEventPage = () => {
 
     try {
       const payload = jwtDecode(token) as {
-        event: { id: string; name: string; details: string };
-        reminder: { name: string; confirmBefore: string };
+        event: { id: string; title: string; details: string };
+        reminder: { name: string; confirmBeforeDate: string };
         user: { name: string; email: string };
       };
       // TODO: Validate payload
@@ -55,7 +55,7 @@ const ConfirmEventPage = () => {
       console.error(err);
       return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
     }
-  }, [location.search]);
+  }, [location.search, toError]);
 
   async function confirm() {
     setIsLoading(true);
@@ -84,12 +84,14 @@ const ConfirmEventPage = () => {
       </h1>
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle className="text-2xl">{event.name}</CardTitle>
-          <CardTitle className="font-medium">{event.details}</CardTitle>
+          <CardTitle className="text-2xl">{event.title}</CardTitle>
+          {event.details && (
+            <CardTitle className="font-medium">{event.details}</CardTitle>
+          )}
           <CardDescription>
             {isCanceling
               ? "Vous êtes sur le point de vous désinscrire de ce spectacle. Renseignez le motif de votre désinscription et cliquez sur le bouton ci-dessous pour confirmer."
-              : `Vous êtes pré-inscrit à ce spectacle. Veuillez confirmer avant le ${reminder.confirmBefore} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
+              : `Vous êtes pré-inscrit à ce spectacle. Veuillez confirmer avant le ${reminder.confirmBeforeDate} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
           </CardDescription>
         </CardHeader>
         <CardContent>

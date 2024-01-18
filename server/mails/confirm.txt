@@ -1,0 +1,15 @@
+Inscription au théâtre 🎭
+
+Bonjour $$USER_NAME,
+
+Vous êtes pré-inscrit au spectacle suivant :
+
+$$EVENT_NAME
+
+Veuillez confirmer votre inscription avant le $$CONFIRM_BEFORE_DATE en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
+$$LINK
+
+En l'absence de confirmation, votre place sera attribuée à quelqu'un d'autre. 
+
+Une fois votre inscription validée, vous recevrez régulièrement un mail, et jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement.
+Bien Cordialement, A. Saly

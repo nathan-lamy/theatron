@@ -14,8 +14,6 @@ const TOKEN_PATH = path.join(process.cwd(), "token.json");
 const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 // TODO: Move credentials.json to a more secure location
 // TODO: Add a way to refresh the token
-// TODO: Move to env variables
-const G_SPREADSHEET_ID = "1gHVJM1qo-aWGFBxXWDbd0NtCJY_Gd6_v_NF3SgZ8MZ8";
 
 // Reads previously authorized credentials from the save file.
 async function loadSavedCredentialsIfExist() {
@@ -65,36 +63,34 @@ export async function boot() {
 }
 
 // List all sheets in the spreadsheet
-export async function listSheets(auth: OAuth2Client) {
-  const sheets = google.sheets({ version: "v4", auth });
+export async function listSheets() {
+  const sheets = google.sheets({ version: "v4", auth: client });
   const res = await sheets.spreadsheets.get({
-    spreadsheetId: G_SPREADSHEET_ID,
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
   });
-  //   TODO: Blacklist sheets (e.g. "Template")
-  return res.data.sheets?.map((sheet) => sheet.properties);
+  return res.data.sheets
+    ?.map((sheet) => sheet.properties)
+    .filter(
+      (sheet) =>
+        sheet &&
+        sheet.title !== Bun.env.SETTINGS_SHEET_NAME &&
+        sheet.title !== Bun.env.TEMPLATE_SHEET_NAME
+    );
 }
 
-export async function getSheetValue(
-  auth: OAuth2Client,
-  sheetTitle: string,
-  range: string
-) {
-  const sheets = google.sheets({ version: "v4", auth });
+export async function getSheetValue(sheetTitle: string, range: string) {
+  const sheets = google.sheets({ version: "v4", auth: client });
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: G_SPREADSHEET_ID,
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
     range: `${sheetTitle}!${range}`,
   });
   return res.data.values;
 }
 
-export async function getSheetValues(
-  auth: OAuth2Client,
-  sheetTitle: string,
-  ranges: string[]
-) {
-  const sheets = google.sheets({ version: "v4", auth });
+export async function getSheetValues(sheetTitle: string, ranges: string[]) {
+  const sheets = google.sheets({ version: "v4", auth: client });
   const res = await sheets.spreadsheets.values.batchGet({
-    spreadsheetId: G_SPREADSHEET_ID,
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
     ranges: ranges.map((range) => `${sheetTitle}!${range}`),
   });
   return res.data.valueRanges?.map((v) => v.values);
@@ -104,69 +100,86 @@ export interface EventInfo {
   id: string;
   title: string;
   date: string;
-  details?: string;
-  reminders: { [key: number]: string };
+  details: string;
 }
 
 // TODO: Improve performance by using batchGet for multiple events
 export const getEventInfo = async (
-  auth: OAuth2Client,
   eventName: string
 ): Promise<EventInfo | undefined> => {
-  const sheetData = await getSheetValues(auth, eventName, ["B3:B9", "F3:F8"]);
-  if (sheetData && sheetData[0] && sheetData[1]) {
+  const sheetData = await getSheetValue(eventName, "B3:B9");
+  if (sheetData) {
     // Destructure data for better readability
-    const [[title], [date]] = sheetData[0];
+    const [[title], [date]] = sheetData;
     // Reverse the detailsData array for easier access to the last element
-    const detailsData = sheetData[0].reverse()[0];
+    const detailsData = sheetData.reverse()[0];
     // Extract details from the reversed detailsData array
-    const details = detailsData && detailsData[0]?.split(";")[1];
-    // Create reminders object using Object.fromEntries
-    const reminders = Object.fromEntries(
-      sheetData[1]
-        .map(([name], index) => [index, name])
-        .filter((entry) => entry[1])
-    );
+    const details = detailsData ? detailsData[0]?.split(";")[1] : null;
     return {
       id: eventName,
       title,
       date,
       details,
-      reminders,
     };
   }
 };
 
-export const getMembers = async (auth: OAuth2Client, eventName: string) => {
+export type Reminder = {
+  name: string;
+  optional: boolean;
+};
+
+export const getReminders = async () => {
+  const sheetData = await getSheetValue(Bun.env.SETTINGS_SHEET_NAME!, "B6:C15");
+  if (sheetData) {
+    return Object.fromEntries(
+      sheetData
+        .map(
+          ([reminder, optional], i) =>
+            [i, { name: reminder, optional: optional === "TRUE" }] as [
+              number,
+              Reminder
+            ]
+        )
+        .filter(([_, { name }]) => name)
+    );
+  }
+};
+
+export type Member = {
+  lastName: string;
+  firstName: string;
+  email: string;
+  reminders: Record<number, boolean>;
+  uid: number;
+};
+
+export const getMembers = async (eventName: string) => {
   // TODO: Add a way to get the range dynamically (not only 100 rows)
-  const sheetData = await getSheetValue(auth, eventName, "15:100");
+  const sheetData = await getSheetValue(eventName, "15:100");
   if (sheetData) {
     return sheetData
-      .map(
-        ([lastName, firstName, email, isRegistered, _, ...reminders], i) => ({
-          lastName,
-          firstName,
-          email,
-          reminders: Object.fromEntries(
-            reminders.map((reminder, index) => [index, reminder === "TRUE"])
-          ),
-          isRegistered: isRegistered === "TRUE",
-          uid: 15 + i,
-        })
-      )
+      .map(([lastName, firstName, email, _, ...reminders], i) => ({
+        lastName,
+        firstName,
+        email,
+        reminders: Object.fromEntries(
+          reminders.map((reminder, index) => [index, reminder === "TRUE"])
+        ),
+        uid: 15 + i,
+      }))
       .filter((member) => member.email);
   }
 };
 
 export async function updateCellValue(
-  auth: OAuth2Client,
   sheetTitle: string,
   cell: string,
   value: string
 ) {
-  const sheets = google.sheets({ version: "v4", auth });
+  const sheets = google.sheets({ version: "v4", auth: client });
   const res = await sheets.spreadsheets.values.update({
-    spreadsheetId: G_SPREADSHEET_ID,
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
     range: `${sheetTitle}!${cell}`,
     valueInputOption: "USER_ENTERED",
     requestBody: {
@@ -176,15 +189,14 @@ export async function updateCellValue(
   return res.data;
 }
 
-// !CAUTION: index is 0-based and END is EXCLUSIVE
+// CAUTION: index is 0-based and END is EXCLUSIVE
 export async function insertCheckboxes(
-  auth: OAuth2Client,
   sheetId: number,
   range: { start: number[]; end: number[] }
 ) {
-  const sheets = google.sheets({ version: "v4", auth });
+  const sheets = google.sheets({ version: "v4", auth: client });
   const res = await sheets.spreadsheets.batchUpdate({
-    spreadsheetId: G_SPREADSHEET_ID,
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
     requestBody: {
       requests: [
         {
@@ -213,18 +225,6 @@ export async function insertCheckboxes(
 }
 
 // TODO: Brouillon
-(async () => {
-  await boot();
-  const [sheet] = (await listSheets(client))!;
-  const values = await getMembers(client, sheet?.title!);
-  console.log(values);
-  //   const data = await getSheetValues(client, sheet?.title!, ["B3:B9", "F3:F8"]);
-  // console.log(
-  //   await insertCheckboxes(client, sheet?.sheetId!, {
-  //     start: [16 - 1, 6 - 1],
-  //     // EXCLUSIVE
-  //     end: [17, 10],
-  //   })
-  // );
-  // console.log(await updateCellValue(client, sheet?.title!, "F17", "FALSE"));
-})();
+// (async () => {
+// console.log(await updateCellValue(client, sheet?.title!, "F17", "FALSE"));
+// })();
