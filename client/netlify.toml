@@ -1,6 +1,6 @@
 [build]
 # custom build command that install bun and run build
-command = "bun --bun run build:client"
+command = "bun --bun run build"
 # vite output folder
 publish = "dist"
 
