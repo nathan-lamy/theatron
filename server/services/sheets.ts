@@ -167,6 +167,8 @@ export const getMembers = async (eventName: string) => {
           lastName,
           firstName,
           email,
+          priority,
+          onWaitlist,
           reminders: Object.fromEntries(
             reminders.map((reminder, index) => [index, reminder === "TRUE"])
           ),
