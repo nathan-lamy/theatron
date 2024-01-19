@@ -41,8 +41,8 @@ export async function boot() {
 
       // Insert checkboxes in the sheet for this reminder
       const reminderId = parseInt(i, 10);
-      // 5 is the column index of the first reminder (column E; 0-based) and reminderId is the offset (0-based)
-      const reminderColumn = 5 + reminderId;
+      // 7 is the column index of the first reminder (column G; 0-based) and reminderId is the offset (0-based)
+      const reminderColumn = 7 + reminderId;
       const reminderStartRow = 14; // constant (row 15; 0-based)
       const reminderEndRow = reminderStartRow + members.length; // variable
       await insertCheckboxes(sheet.sheetId!, {

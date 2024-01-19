@@ -1,9 +1,14 @@
 import { EventInfo, Member, Reminder } from "./sheets";
 import { sign } from "hono/jwt";
-// export const sendMail
+import nodemailer from "nodemailer";
 
 // TODO: Retrieve from sheets config
 const MAX_DAYS_TO_CONFIRM = 4;
+const [SMTP_HOST, SMTP_USER, SMTP_PASSWORD] = [
+  "smtp.gmail.com",
+  process.env.SMTP_USER,
+  process.env.SMTP_PASSWORD,
+];
 
 export const sendEventReminder = async (
   member: Member,
@@ -26,7 +31,17 @@ export const sendEventReminder = async (
     },
     Bun.env.JWT_SECRET!
   );
-  console.log(token);
+  // Load mail template
+  const { text, html } = await loadMailTemplate(
+    "mails/" + (reminder.optional ? "reminder" : "confirm"),
+    {
+      member,
+      event,
+      token,
+    }
+  );
+  // Send mail
+  await sendMail(member.email, { text, html });
 };
 
 function calculateConfirmBeforeDate(
@@ -48,14 +63,12 @@ function dateToFrenchString(date: Date) {
 
 async function loadMailTemplate(
   fileName: string,
-  {
-    member,
-    event,
-    reminder,
-    token,
-  }: { member: Member; event: EventInfo; reminder: Reminder; token: string }
+  { member, event, token }: { member: Member; event: EventInfo; token: string }
 ) {
-  const template = await Bun.file(fileName).text();
+  let templates = [
+    await Bun.file(fileName + ".txt").text(),
+    await Bun.file(fileName + ".html").text(),
+  ];
   const variables = {
     "{{user.name}}": member.firstName + " " + member.lastName,
     "{{event.name}}": event.details.replace(";", ", "),
@@ -65,10 +78,42 @@ async function loadMailTemplate(
     "{{link}}":
       removeTrailingSlash(Bun.env.FRONTEND_URL!) + "/confirm?token=" + token,
   };
-  Object.entries(variables).forEach(([key, value]) => {
-    template.replaceAll(key, value);
-  });
-  return template;
+  templates = templates.map((template) =>
+    Object.entries(variables).reduce(
+      (template, [key, value]) => template.replaceAll(key, value),
+      template
+    )
+  );
+  return { text: templates[0], html: templates[1] };
 }
 
 const removeTrailingSlash = (str: string) => str.replace(/\/$/, "");
+
+export let transporter: nodemailer.Transporter;
+
+export function boot() {
+  transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: 465,
+    secure: true,
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASSWORD,
+    },
+  });
+}
+
+export async function sendMail(
+  email: string,
+  { text, html }: { text: string; html: string }
+) {
+  const message = await transporter.sendMail({
+    from: SMTP_USER,
+    to: email,
+    // TODO
+    subject: "TODO",
+    text,
+    html,
+  });
+  console.log("Message sent: %s", message.messageId);
+}

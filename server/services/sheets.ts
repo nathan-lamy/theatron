@@ -136,7 +136,7 @@ export const getReminders = async () => {
       sheetData
         .map(
           ([reminder, optional], i) =>
-            [i, { name: reminder, optional: optional === "TRUE" }] as [
+            [i, { name: reminder, optional: optional !== "TRUE" }] as [
               number,
               Reminder
             ]
@@ -159,15 +159,20 @@ export const getMembers = async (eventName: string) => {
   const sheetData = await getSheetValue(eventName, "15:100");
   if (sheetData) {
     return sheetData
-      .map(([lastName, firstName, email, _, ...reminders], i) => ({
-        lastName,
-        firstName,
-        email,
-        reminders: Object.fromEntries(
-          reminders.map((reminder, index) => [index, reminder === "TRUE"])
-        ),
-        uid: 15 + i,
-      }))
+      .map(
+        (
+          [lastName, firstName, email, priority, onWaitlist, _, ...reminders],
+          i
+        ) => ({
+          lastName,
+          firstName,
+          email,
+          reminders: Object.fromEntries(
+            reminders.map((reminder, index) => [index, reminder === "TRUE"])
+          ),
+          uid: 15 + i,
+        })
+      )
       .filter((member) => member.email);
   }
 };

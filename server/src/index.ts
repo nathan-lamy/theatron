@@ -3,12 +3,14 @@ import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
+import { boot as bootMailTransporter } from "../services/mail";
 
 const app = new Hono();
 
 app.use("*", cors());
 
 // TODO: Cron job every day at 6:00 AM (change time in env variables)
+bootMailTransporter();
 boot();
 
 const route = app
