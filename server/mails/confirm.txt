@@ -1,13 +1,13 @@
 Inscription au théâtre 🎭
 
-Bonjour $$USER_NAME,
+Bonjour {{user.name}},
 
 Vous êtes pré-inscrit au spectacle suivant :
 
-$$EVENT_NAME
+{{event.name}}
 
-Veuillez confirmer votre inscription avant le $$CONFIRM_BEFORE_DATE en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
-$$LINK
+Veuillez confirmer votre inscription avant le {{event.confirmBeforeDate}} en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
+{{link}}
 
 En l'absence de confirmation, votre place sera attribuée à quelqu'un d'autre. 
 

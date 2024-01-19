@@ -45,3 +45,30 @@ function dateToFrenchString(date: Date) {
   const year = date.getUTCFullYear();
   return `${day}/${month}/${year}`;
 }
+
+async function loadMailTemplate(
+  fileName: string,
+  {
+    member,
+    event,
+    reminder,
+    token,
+  }: { member: Member; event: EventInfo; reminder: Reminder; token: string }
+) {
+  const template = await Bun.file(fileName).text();
+  const variables = {
+    "{{user.name}}": member.firstName + " " + member.lastName,
+    "{{event.name}}": event.details.replace(";", ", "),
+    "{{event.confirmBeforeDate}}": dateToFrenchString(
+      calculateConfirmBeforeDate()
+    ),
+    "{{link}}":
+      removeTrailingSlash(Bun.env.FRONTEND_URL!) + "/confirm?token=" + token,
+  };
+  Object.entries(variables).forEach(([key, value]) => {
+    template.replaceAll(key, value);
+  });
+  return template;
+}
+
+const removeTrailingSlash = (str: string) => str.replace(/\/$/, "");
