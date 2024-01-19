@@ -37,6 +37,7 @@ export const sendEventReminder = async (
     {
       member,
       event,
+      reminder,
       token,
     }
   );
@@ -61,9 +62,34 @@ function dateToFrenchString(date: Date) {
   return `${day}/${month}/${year}`;
 }
 
+function numberToWordsInFrench(number: number) {
+  const units = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept"];
+  return units[number];
+}
+
+function getRelativeTimeInFrench(numberOfDays: number) {
+  const daysInWeek = 7;
+
+  if (numberOfDays >= daysInWeek) {
+    const numberOfWeeks = Math.floor(numberOfDays / daysInWeek);
+    return `${numberToWordsInFrench(numberOfWeeks)} semaine${
+      numberOfWeeks > 1 ? "s" : ""
+    }`;
+  } else {
+    return `${numberToWordsInFrench(numberOfDays)} jour${
+      numberOfDays > 1 ? "s" : ""
+    }`;
+  }
+}
+
 async function loadMailTemplate(
   fileName: string,
-  { member, event, token }: { member: Member; event: EventInfo; token: string }
+  {
+    member,
+    event,
+    reminder,
+    token,
+  }: { member: Member; event: EventInfo; reminder: Reminder; token: string }
 ) {
   let templates = [
     await Bun.file(fileName + ".txt").text(),
@@ -71,12 +97,13 @@ async function loadMailTemplate(
   ];
   const variables = {
     "{{user.name}}": member.firstName + " " + member.lastName,
-    "{{event.name}}": event.details.replace(";", ", "),
+    "{{event.name}}": event.title + ", " + event.details,
     "{{event.confirmBeforeDate}}": dateToFrenchString(
       calculateConfirmBeforeDate()
     ),
     "{{link}}":
       removeTrailingSlash(Bun.env.FRONTEND_URL!) + "/confirm?token=" + token,
+    "{{event.relativeDate}}": getRelativeTimeInFrench(reminder.daysNumber!),
   };
   templates = templates.map((template) =>
     Object.entries(variables).reduce(

@@ -11,5 +11,5 @@ Veuillez confirmer votre inscription avant le {{event.confirmBeforeDate}} en cli
 
 En l'absence de confirmation, votre place sera attribuée à quelqu'un d'autre. 
 
-Une fois votre inscription validée, vous recevrez régulièrement un mail, et jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement.
+Une fois votre inscription validée, vous recevrez régulièrement un mail, jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement.
 Bien Cordialement, A. Saly

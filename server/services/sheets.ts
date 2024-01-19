@@ -127,6 +127,7 @@ export const getEventInfo = async (
 export type Reminder = {
   name: string;
   optional: boolean;
+  daysNumber?: number;
 };
 
 export const getReminders = async () => {

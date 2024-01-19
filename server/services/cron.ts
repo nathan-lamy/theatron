@@ -29,8 +29,8 @@ export async function boot() {
     const eventDate = convertDateStringToDate(event.date);
     for (const [i, reminder] of Object.entries(reminders)) {
       // Check if reminder date is today
-      const reminderDays = parseReminderDate(reminder.name);
-      if (!isReminderToday(eventDate, reminderDays)) continue;
+      reminder.daysNumber = parseReminderDate(reminder.name);
+      if (!isReminderToday(eventDate, reminder.daysNumber)) continue;
       console.log(
         `[CRON] Sending reminder ${reminder.name} for event ${event.title}`
       );
