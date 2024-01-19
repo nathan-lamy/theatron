@@ -55,7 +55,8 @@ const ConfirmEventPage = () => {
       console.error(err);
       return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
     }
-  }, [location.search, toError]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   async function confirm() {
     setIsLoading(true);
