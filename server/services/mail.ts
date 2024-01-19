@@ -42,7 +42,13 @@ export const sendEventReminder = async (
     }
   );
   // Send mail
-  await sendMail(member.email, { text, html });
+  await sendMail(
+    member.email,
+    `${reminder.optional ? "[RAPPEL]" : "[CONFIRMATION]"} ${event.title} ${
+      event.details
+    }`,
+    { text, html }
+  );
 };
 
 function calculateConfirmBeforeDate(
@@ -97,7 +103,8 @@ async function loadMailTemplate(
   ];
   const variables = {
     "{{user.name}}": member.firstName + " " + member.lastName,
-    "{{event.name}}": event.title + ", " + event.details,
+    "{{event.name}}": event.title,
+    "{{event.details}}": event.details,
     "{{event.confirmBeforeDate}}": dateToFrenchString(
       calculateConfirmBeforeDate()
     ),
@@ -132,13 +139,13 @@ export function boot() {
 
 export async function sendMail(
   email: string,
+  subject: string,
   { text, html }: { text: string; html: string }
 ) {
   const message = await transporter.sendMail({
     from: SMTP_USER,
     to: email,
-    // TODO
-    subject: "TODO",
+    subject,
     text,
     html,
   });
