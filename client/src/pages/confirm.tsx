@@ -108,7 +108,7 @@ const ConfirmEventPage = () => {
             ) : (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Votre nom</Label>
+                  <Label htmlFor="name">Nom</Label>
                   <Input
                     id="name"
                     placeholder="Monsieur Saly"
@@ -117,7 +117,7 @@ const ConfirmEventPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Votre adresse mail</Label>
+                  <Label htmlFor="email">Adresse mail</Label>
                   <Input
                     id="email"
                     type="email"
