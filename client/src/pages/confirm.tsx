@@ -77,96 +77,113 @@ const ConfirmEventPage = () => {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-100 p-4 min-h-screen min-w-screen">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 my-12">
-        {isCanceling
-          ? "Désinscription du théâtre 🎭"
-          : "Inscription au théâtre 🎭"}
-      </h1>
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl">{event.title}</CardTitle>
-          {event.details && (
-            <CardTitle className="font-medium">{event.details}</CardTitle>
-          )}
-          <CardDescription>
+    <main className="flex flex-col bg-gray-100 p-4 pt-0">
+      <div className="flex-1 flex justify-center items-center">
+        <div className="block">
+          <h1 className="text-center text-3xl font-bold text-gray-900 dark:text-gray-100 mb-12">
             {isCanceling
-              ? "Vous êtes sur le point de vous désinscrire de ce spectacle. Renseignez le motif de votre désinscription et cliquez sur le bouton ci-dessous pour confirmer."
-              : `Vous êtes pré-inscrit à ce spectacle. Veuillez confirmer avant le ${reminder.confirmBeforeDate} pour valider définitivement, faute de quoi votre place sera réattribuée.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {isCanceling ? (
-              <div className="space-y-2">
-                <Label htmlFor="reason">Motif de la désinscription</Label>
-                <Textarea
-                  id="reason"
-                  placeholder="Je ne peux plus venir..."
-                  onChange={(e) => setReason(e.target.value)}
-                />
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom</Label>
-                  <Input
-                    id="name"
-                    placeholder="Monsieur Saly"
-                    value={user.name}
-                    disabled
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Adresse mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="adrien.saly@ac-nice.fr"
-                    value={user.email}
-                    disabled
-                  />
-                </div>
-              </>
-            )}
-            <div className="flex space-x-4 pt-4">
-              {isCanceling ? (
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  onClick={() => setIsCanceling(false)}
-                  disabled={isLoading}
-                >
-                  ANNULER
-                </Button>
-              ) : (
-                <Button
-                  className="flex-1"
-                  onClick={confirm}
-                  disabled={isLoading}
-                >
-                  {isLoading && (
-                    <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  CONFIRMER
-                </Button>
+              ? "Désinscription théâtre 🎭"
+              : "Inscription au théâtre 🎭"}
+          </h1>
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl">{event.title}</CardTitle>
+              {event.details && (
+                <CardTitle className="font-medium">{event.details}</CardTitle>
               )}
-              <Button
-                className="flex-1"
-                variant="destructive"
-                onClick={isCanceling ? cancel : () => setIsCanceling(true)}
-                disabled={isLoading}
-              >
-                {isLoading && isCanceling && (
-                  <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              <CardDescription>
+                {isCanceling ? (
+                  <>
+                    Vous êtes sur le point de vous <b>désinscrire</b> de ce
+                    spectacle. Renseignez le motif de votre désinscription et
+                    cliquez sur le bouton ci-dessous pour confirmer.
+                  </>
+                ) : (
+                  <>
+                    Vous êtes pré-inscrit à ce spectacle.
+                    <br />
+                    Veuillez{" "}
+                    <b>confirmer avant le {reminder.confirmBeforeDate}</b> pour
+                    valider définitivement, faute de quoi votre place sera
+                    réattribuée.
+                  </>
                 )}
-                {isCanceling ? "CONFIRMER LA DÉSINSCRIPTION" : "SE DÉSINSCRIRE"}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <footer className="absolute bottom-5 text-center">
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {isCanceling ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="reason">Motif de la désinscription</Label>
+                    <Textarea
+                      id="reason"
+                      placeholder="Je ne peux plus venir..."
+                      onChange={(e) => setReason(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nom</Label>
+                      <Input
+                        id="name"
+                        placeholder="Monsieur Saly"
+                        value={user.name}
+                        disabled
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Adresse mail</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="adrien.saly@ac-nice.fr"
+                        value={user.email}
+                        disabled
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="flex space-x-4 pt-4">
+                  {isCanceling ? (
+                    <Button
+                      className="flex-1"
+                      variant="outline"
+                      onClick={() => setIsCanceling(false)}
+                      disabled={isLoading}
+                    >
+                      ANNULER
+                    </Button>
+                  ) : (
+                    <Button
+                      className="flex-1"
+                      onClick={confirm}
+                      disabled={isLoading}
+                    >
+                      {isLoading && (
+                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      CONFIRMER
+                    </Button>
+                  )}
+                  <Button
+                    className="flex-1"
+                    variant="destructive"
+                    onClick={isCanceling ? cancel : () => setIsCanceling(true)}
+                    disabled={isLoading}
+                  >
+                    {isLoading && isCanceling && (
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    SE DÉSINSCRIRE
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      <footer className="flex flex-col text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Made with
           <span className="text-red-500"> ❤ </span>
