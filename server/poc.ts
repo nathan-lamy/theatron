@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 // Email short link : /confirm/:eventId?email=:email&token=:token
 const eventId = "001";
 const email = "test@helloword.com";
+// NOTE: Use uid instead of email in production (more efficient and shorter)
 
 // GENERATE TOKEN
 function generateToken(eventId: string, email: string) {
