@@ -1,17 +1,19 @@
 import { useLocation } from "react-router-dom";
 
 export default function Error() {
-  const { state } = useLocation();
+  const { state } = useLocation() as {
+    state: { error: { title: string; details: string } };
+  };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <FileWarningIcon className="h-12 w-12 text-red-500 mx-auto" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             {state?.error?.title || "Erreur interne !"}
           </h2>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-gray-600 dark:text-gray-400 px-6">
             {state?.error?.details ||
               "Une erreur interne est survenue. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter votre professeur par mail."}
           </p>
