@@ -4,6 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
 import { boot as bootMailTransporter } from "../services/mail";
+import { generateJWT, verifyShortLink } from "../utils/link";
 
 const app = new Hono();
 
@@ -30,6 +31,27 @@ const route = app
       // TODO: Validate token & logic
       console.log(req.json());
       return json({ id: req.param("id") });
+    }
+  )
+  .post(
+    "/auth/:id",
+    zValidator(
+      "query",
+      z.object({
+        token: z.string().min(40).max(40),
+        email: z.string().email(),
+        i: z.string().regex(/^\d+$/),
+      })
+    ),
+    async ({ req, json }) => {
+      const eventId = req.param("id");
+      const { email, token, i } = req.query();
+      if (verifyShortLink({ email, eventId, daysNumber: i, token })) {
+        // TODO: Redirect to frontend with JWT
+        // const cookie = generateJWT(member, event, reminder);
+        return json({ eventId });
+      }
+      return json({ error: "Invalid token" }, 403);
     }
   );
 
