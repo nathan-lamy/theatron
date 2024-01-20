@@ -46,10 +46,10 @@ const route = app
     async ({ req, json }) => {
       const eventId = req.param("id");
       const { email, token, i } = req.query();
-      if (verifyShortLink({ email, eventId, daysNumber: i, token })) {
+      if (verifyShortLink({ email, eventId, token })) {
         // TODO: Redirect to frontend with JWT
         // const cookie = generateJWT(member, event, reminder);
-        return json({ eventId });
+        return json({ eventId, i });
       }
       return json({ error: "Invalid token" }, 403);
     }

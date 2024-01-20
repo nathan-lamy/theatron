@@ -7,14 +7,12 @@ import { calculateConfirmBeforeDate } from "./date";
 const generateToken = ({
   eventId,
   email,
-  reminderName,
 }: {
   eventId: string;
   email: string;
-  reminderName: string;
 }) =>
   createHmac("sha1", Bun.env.HMAC_KEY!)
-    .update(eventId + ":" + email + ":" + reminderName)
+    .update(eventId + ":" + email)
     .digest("hex");
 
 // Generate short link for email (ex: https://example.fr/confirm/1234567890?email=foo%40bar.com&token=1234567890abcdef&i=1)
@@ -29,10 +27,7 @@ export const generateShortLink = ({
 }) => {
   const url = new URL(Bun.env.FRONTEND_URL!);
   url.pathname = "/confirm/" + eventId;
-  url.searchParams.set(
-    "token",
-    generateToken({ eventId, email, reminderName: reminder.name })
-  );
+  url.searchParams.set("token", generateToken({ eventId, email }));
   url.searchParams.set("email", email);
   url.searchParams.set("i", reminder.daysNumber!.toString());
   return url.toString();
@@ -42,19 +37,15 @@ export const generateShortLink = ({
 export const verifyShortLink = ({
   eventId,
   email,
-  daysNumber,
   token,
 }: {
   eventId: string;
   email: string;
-  daysNumber: string;
   token: string;
 }) =>
   timingSafeEqual(
     Buffer.from(token),
-    Buffer.from(
-      generateToken({ eventId, email, reminderName: "J-" + daysNumber })
-    )
+    Buffer.from(generateToken({ eventId, email }))
   );
 
 // Generate JWT token (after clicking on short link) with event, reminder and user data, used by frontend to display event details
