@@ -1,7 +1,5 @@
-import { sign } from "hono/jwt";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { Member, Reminder } from "../services/sheets";
-import { calculateConfirmBeforeDate } from "./date";
+import { Reminder } from "../services/sheets";
 
 // Use HMAC to generate a token (SHA1)
 const generateToken = ({
@@ -47,22 +45,3 @@ export const verifyShortLink = ({
     Buffer.from(token),
     Buffer.from(generateToken({ eventId, email }))
   );
-
-// // Generate JWT token (after clicking on short link) with event, reminder and user data, used by frontend to display event details
-// export const generateJWT = (member: Member, event: Event, reminder: Reminder) =>
-//   // TODO: Encode only the necessary data (to reduce token size)
-//   sign(
-//     {
-//       event,
-//       reminder: {
-//         ...reminder,
-//         confirmBeforeDate: calculateConfirmBeforeDate(),
-//       },
-//       user: {
-//         name: `${member.firstName} ${member.lastName}`,
-//         email: member.email,
-//         uid: member.uid,
-//       },
-//     },
-//     Bun.env.JWT_SECRET!
-//   );

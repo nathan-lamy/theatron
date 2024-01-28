@@ -68,6 +68,9 @@ const route = app
         user: { ...member, name: `${member.firstName} ${member.lastName}` },
         event,
       } as EventPayload;
+      // TODO: Fix confirmBeforeDate
+      // * La date est calculée en fonction de la date du jour, mais il faudrait la calculer en fonction de la date de l'événement
+      // Ne pas modifier la fonction car elle est utilisée dans les mails
       if (i) payload.confirmBeforeDate = calculateConfirmBeforeDate(+i);
       return json(payload);
     }
