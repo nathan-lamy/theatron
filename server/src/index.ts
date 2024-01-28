@@ -48,6 +48,7 @@ const route = app
     // TODO: Cache response & rate limit
     async ({ req, json }) => {
       const eventId = req.param("id");
+      console.log("INCOMING REQUEST FOR EVENT", eventId);
       const { email, token, i } = req.query();
 
       // Verify token

@@ -1,6 +1,8 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useRouteError } from "react-router-dom";
 
 export default function Error() {
+  // TODO:
+  console.log(useRouteError());
   const { state } = useLocation() as {
     state: { error: { title: string; details: string } };
   };

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { useState } from "react";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -15,48 +16,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
+import { EventPayload } from "@server/index";
 
 // TODO: Add global loading state to avoid flashing content
 const ConfirmEventPage = () => {
-  const location = useLocation();
+  // TODO: Validate payload
+  const { event, user, confirmBeforeDate } = useLoaderData() as EventPayload;
   const navigate = useNavigate();
   const { toError, toSuccess } = redirect(navigate);
 
-  // JWT token from URL query params
-  const [token, setToken] = useState("");
-  // Pre-populate form with data from JWT token
-  const [event, setEvent] = useState({ id: "", title: "", details: "" });
-  const [reminder, setReminder] = useState({ name: "", confirmBeforeDate: "" });
-  const [user, setUser] = useState({ name: "", email: "" });
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(false);
   const [reason, setReason] = useState("");
   // Loading state for API calls (button disabled)
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get("token");
-    if (!token) return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
-    setToken(token);
-
-    try {
-      const payload = jwtDecode(token) as {
-        event: { id: string; title: string; details: string };
-        reminder: { name: string; confirmBeforeDate: string };
-        user: { name: string; email: string };
-      };
-      // TODO: Validate payload
-      setEvent(payload.event);
-      setReminder(payload.reminder);
-      setUser(payload.user);
-    } catch (err) {
-      // TODO: Sentry
-      console.error(err);
-      return toError(ERRORS.INVALID_OR_MISSING_TOKEN);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
 
   async function confirm() {
     setIsLoading(true);
@@ -102,8 +75,7 @@ const ConfirmEventPage = () => {
                   <>
                     Vous êtes pré-inscrit à ce spectacle.
                     <br />
-                    Veuillez{" "}
-                    <b>confirmer avant le {reminder.confirmBeforeDate}</b> pour
+                    Veuillez <b>confirmer avant le {confirmBeforeDate}</b> pour
                     valider définitivement, faute de quoi votre place sera
                     réattribuée.
                   </>

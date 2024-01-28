@@ -6,6 +6,7 @@ import "./index.css";
 import ConfirmEventPage from "./pages/confirm";
 import Error from "./pages/error";
 import Success from "./pages/success";
+import { loader as confirmLoader } from "./loaders/confirm";
 
 const router = createBrowserRouter([
   {
@@ -17,8 +18,10 @@ const router = createBrowserRouter([
     element: <Error />,
   },
   {
-    path: "/confirm",
+    path: "/confirm/:eventId",
     element: <ConfirmEventPage />,
+    loader: confirmLoader,
+    errorElement: <Error />,
   },
   {
     path: "/success",
