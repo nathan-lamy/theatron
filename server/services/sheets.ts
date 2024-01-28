@@ -232,6 +232,19 @@ export async function insertCheckboxes(
   return res.data;
 }
 
+export async function getEventAndMemberInfo({
+  email,
+  eventId,
+}: {
+  email: string;
+  eventId: string;
+}) {
+  const members = await getMembers(eventId);
+  const member = members?.find((member) => member.email === email);
+  const event = await getEventInfo(eventId);
+  return { member, event };
+}
+
 // TODO: Brouillon
 // (async () => {
 // console.log(await updateCellValue(client, sheet?.title!, "F17", "FALSE"));

@@ -4,7 +4,9 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
 import { boot as bootMailTransporter } from "../services/mail";
-import { generateJWT, verifyShortLink } from "../utils/link";
+import { verifyShortLink } from "../utils/link";
+import { EventInfo, Member, getEventAndMemberInfo } from "../services/sheets";
+import { calculateConfirmBeforeDate } from "../utils/date";
 
 const app = new Hono();
 
@@ -33,28 +35,52 @@ const route = app
       return json({ id: req.param("id") });
     }
   )
-  .post(
-    "/auth/:id",
+  .get(
+    "/events/:id",
     zValidator(
       "query",
       z.object({
         token: z.string().min(40).max(40),
         email: z.string().email(),
-        i: z.string().regex(/^\d+$/),
+        i: z.string().regex(/^\d+$/).optional(),
       })
     ),
+    // TODO: Cache response & rate limit
     async ({ req, json }) => {
       const eventId = req.param("id");
       const { email, token, i } = req.query();
-      if (verifyShortLink({ email, eventId, token })) {
-        // TODO: Redirect to frontend with JWT
-        // const cookie = generateJWT(member, event, reminder);
-        return json({ eventId, i });
+
+      // Verify token
+      if (!verifyShortLink({ email, eventId, token })) {
+        return json({ error: "Invalid token" }, 403);
       }
-      return json({ error: "Invalid token" }, 403);
+
+      // Retrieve event and member info from sheets
+      const { member, event } = await getEventAndMemberInfo({
+        email,
+        eventId,
+      });
+      if (!member || !event) return json({ error: "Invalid token" }, 403);
+
+      // Generate response payload
+      const payload = {
+        user: { ...member, name: `${member.firstName} ${member.lastName}` },
+        event,
+      } as EventPayload;
+      if (i) payload.confirmBeforeDate = calculateConfirmBeforeDate(+i);
+      return json(payload);
     }
   );
 
 export type AppType = typeof route;
+
+interface NamedMember extends Member {
+  name: string;
+}
+export interface EventPayload {
+  user: NamedMember;
+  event: EventInfo;
+  confirmBeforeDate?: string;
+}
 
 export default app;
