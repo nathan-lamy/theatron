@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -18,7 +18,6 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
 import { EventPayload } from "@server/index";
 
-// TODO: Add global loading state to avoid flashing content
 const ConfirmEventPage = () => {
   // TODO: Validate payload
   const { event, user, confirmBeforeDate } = useLoaderData() as EventPayload;
@@ -31,11 +30,14 @@ const ConfirmEventPage = () => {
   // Loading state for API calls (button disabled)
   const [isLoading, setIsLoading] = useState(false);
 
+  const [params] = useSearchParams();
+  const token = params.get("token")!;
+
   async function confirm() {
     setIsLoading(true);
     await client.events[":id"].$post({
       param: { id: event.id },
-      json: { token },
+      query: { token, email: user.email },
     });
     toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
   }
@@ -44,7 +46,8 @@ const ConfirmEventPage = () => {
     setIsLoading(true);
     await client.events[":id"].$delete({
       param: { id: event.id },
-      json: { token, reason },
+      json: { reason },
+      query: { token, email: user.email },
     });
     toSuccess(SUCCESS.REGISTRATION_CANCELED);
   }
@@ -129,7 +132,9 @@ const ConfirmEventPage = () => {
                   ) : (
                     <Button
                       className="flex-1"
-                      onClick={confirm}
+                      onClick={() => {
+                        void confirm();
+                      }}
                       disabled={isLoading}
                     >
                       {isLoading && (

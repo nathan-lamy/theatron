@@ -4,9 +4,9 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
 import { boot as bootMailTransporter } from "../services/mail";
-import { verifyShortLink } from "../utils/link";
 import { EventInfo, Member, getEventAndMemberInfo } from "../services/sheets";
 import { calculateConfirmBeforeDate } from "../utils/date";
+import { auth, validateRequest } from "../middlewares/auth";
 
 const app = new Hono();
 
@@ -17,44 +17,40 @@ bootMailTransporter();
 boot();
 
 const route = app
-  .post(
-    "/events/:id",
-    zValidator("json", z.object({ token: z.string() })),
-    ({ req, json }) => {
-      // TODO: Validate token & logic
-      console.log(req.json());
-      return json({ id: req.param("id") });
-    }
-  )
+  // Confirm event registration (update cell in sheets)
+  .post("/events/:id", validateRequest, auth, ({ req, json }) => {
+    // TODO: Validate token & logic
+    console.log(req.json());
+    return json({ id: req.param("id") });
+  })
+  // Delete event registration (remove row in sheets)
   .delete(
     "/events/:id",
-    zValidator("json", z.object({ token: z.string(), reason: z.string() })),
+    validateRequest,
+    auth,
+    zValidator("json", z.object({ reason: z.string() })),
     ({ req, json }) => {
       // TODO: Validate token & logic
       console.log(req.json());
       return json({ id: req.param("id") });
     }
   )
+  // Get event info (member & event)
   .get(
     "/events/:id",
+    validateRequest,
+    auth,
     zValidator(
       "query",
       z.object({
-        token: z.string().min(40).max(40),
-        email: z.string().email(),
         i: z.string().regex(/^\d+$/).optional(),
       })
     ),
-    // TODO: Cache response & rate limit
+    // TODO: Cache response & rate limit (slow because of sheets API)
     async ({ req, json }) => {
       const eventId = req.param("id");
       console.log("INCOMING REQUEST FOR EVENT", eventId);
-      const { email, token, i } = req.query();
-
-      // Verify token
-      if (!verifyShortLink({ email, eventId, token })) {
-        return json({ error: "Invalid token" }, 403);
-      }
+      const { email, i } = req.query();
 
       // Retrieve event and member info from sheets
       const { member, event } = await getEventAndMemberInfo({
