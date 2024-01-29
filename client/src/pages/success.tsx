@@ -7,7 +7,7 @@ export default function Success() {
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-green-100 dark:bg-green-900">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-lg w-full space-y-8">
         <div className="text-center">
           <CheckIcon className="h-12 w-12 text-green-500 mx-auto" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">

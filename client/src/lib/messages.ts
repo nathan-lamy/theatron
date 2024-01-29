@@ -1,8 +1,13 @@
 export const ERRORS = {
-  INVALID_OR_MISSING_TOKEN: {
+  INVALID_LINK: {
     title: "Le lien est invalide ou a expiré",
     message:
       "Vérifiez que vous avez bien cliqué sur le lien reçu par mail. Si vous avez déjà cliqué sur le lien, il est possible qu'il ait expiré. Si le problème persiste, veuillez contacter votre professeur par mail.",
+  },
+  EXPIRED_LINK: {
+    title: "Vous n'avez pas confirmé votre inscription à temps",
+    message:
+      "Votre place a été libérée et sera attribuée à la prochaine personne sur la liste d'attente. Si vous vous êtes désinscrit volontairement, vous pouvez ignorer ce message.",
   },
 };
 
