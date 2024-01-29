@@ -29,32 +29,36 @@ export async function boot() {
     const eventDate = convertDateStringToDate(event.date);
     for (const [i, reminder] of Object.entries(reminders)) {
       // Check if reminder date is today
-      reminder.daysNumber = parseReminderDate(reminder.name);
-      if (!isReminderToday(eventDate, reminder.daysNumber)) continue;
+      const daysNumber = parseReminderDate(reminder);
+      if (!isReminderToday(eventDate, daysNumber)) continue;
       console.log(
-        `[CRON] Sending reminder ${reminder.name} for event ${event.title}`
+        `[CRON] Sending reminder ${reminder} for event ${event.title}`
       );
 
       // Get members for this event
       const members = await getMembers(sheet.title); // Request count : 5
       if (!members) return console.error("[CRON] No members found.");
 
-      // TODO: Insert checkboxes in the sheet for the reminder & the wait list
+      // Insert checkboxes in the sheet for the reminder & the wait list
       const reminderId = parseInt(i, 10);
       // 7 is the column index of the first reminder (column E and F; 0-based) and reminderId is the offset (0-based)
-      const reminderColumn = 7 + reminderId;
+      const reminderColumn = 5 + reminderId;
       const reminderStartRow = 14; // constant (row 15; 0-based)
       const reminderEndRow = reminderStartRow + members.length; // variable
       await insertCheckboxes(sheet.sheetId!, {
         // NOTE: Indexes are 0-based and END is EXCLUSIVE
         // NOTE: First value is the row index, second value is the column index
         start: [reminderStartRow, reminderColumn - 1],
-        end: [reminderEndRow, reminderColumn],
+        end: [reminderEndRow, reminderColumn + 1],
       }); // Request count : 6
 
       // Send emails to members with this reminder
       for (const member of members) {
-        await sendEventReminder(member, event, reminder);
+        await sendEventReminder(member, event, {
+          name: reminder,
+          daysNumber,
+          optional: reminderId != 0,
+        });
       }
 
       // TODO: Send job report mail to admin (with the number of emails sent : success / failure / title / date / reminder / timeTaken)

@@ -131,18 +131,13 @@ export type Reminder = {
 };
 
 export const getReminders = async () => {
-  const sheetData = await getSheetValue(Bun.env.SETTINGS_SHEET_NAME!, "B6:C15");
+  // NOTE: Max 10 allowed reminders
+  const sheetData = await getSheetValue(Bun.env.SETTINGS_SHEET_NAME!, "B6:B15");
   if (sheetData) {
     return Object.fromEntries(
       sheetData
-        .map(
-          ([reminder, optional], i) =>
-            [i, { name: reminder, optional: optional !== "TRUE" }] as [
-              number,
-              Reminder
-            ]
-        )
-        .filter(([_, { name }]) => name)
+        .map(([reminder], i) => [i, reminder] as [number, string])
+        .filter(([_, name]) => name)
     );
   }
 };
@@ -151,7 +146,9 @@ export type Member = {
   lastName: string;
   firstName: string;
   email: string;
-  reminders: Record<number, boolean>;
+  priority: number;
+  onWaitList: boolean;
+  hasConfirmed: boolean;
   uid: number;
 };
 
@@ -162,17 +159,15 @@ export const getMembers = async (eventName: string) => {
     return sheetData
       .map(
         (
-          [lastName, firstName, email, priority, onWaitlist, _, ...reminders],
+          [lastName, firstName, email, priority, onWaitList, hasConfirmed],
           i
         ) => ({
           lastName,
           firstName,
           email,
           priority,
-          onWaitlist,
-          reminders: Object.fromEntries(
-            reminders.map((reminder, index) => [index, reminder === "TRUE"])
-          ),
+          onWaitList: onWaitList === "TRUE",
+          hasConfirmed: hasConfirmed === "TRUE",
           uid: 15 + i,
         })
       )
@@ -244,8 +239,3 @@ export async function getEventAndMemberInfo({
   const event = await getEventInfo(eventId);
   return { member, event };
 }
-
-// TODO: Brouillon
-// (async () => {
-// console.log(await updateCellValue(client, sheet?.title!, "F17", "FALSE"));
-// })();
