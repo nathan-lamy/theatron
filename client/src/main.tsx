@@ -15,7 +15,6 @@ import { withSuspense } from "./lib/suspense";
 
 const router = createBrowserRouter([
   {
-    // TODO: Not found page
     errorElement: <Error />,
   },
   {

@@ -1,13 +1,20 @@
 import { useLocation, useRouteError } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import { ERRORS } from "@/lib/messages";
 
 export default function Error() {
+  // Handle errors from react-router-dom
   const error = useRouteError() as Record<string, string>;
   const errorMessage = error?.statusText || error?.message;
   if (errorMessage) Sentry.captureMessage(errorMessage);
-  const { state } = useLocation() as {
+  // Handle errors from the server
+  const location = useLocation() as {
     state: { error: { title: string; message: string } };
   };
+  const state = location.state || {};
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  console.log(errorMessage, errorMessage === "Not Found");
+  if (errorMessage === "Not Found") state.error = ERRORS.NOT_FOUND;
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">
@@ -15,11 +22,11 @@ export default function Error() {
         <div className="text-center">
           <FileWarningIcon className="h-12 w-12 text-red-500 mx-auto" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-            {state?.error?.title || "Erreur interne !"}
+            {state.error?.title || "Erreur interne !"}
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-400 px-6">
-            {(errorMessage && `Détails de l'erreur : ${errorMessage}`) ||
-              state?.error?.message ||
+            {state.error?.message ||
+              (errorMessage && `Détails de l'erreur : ${errorMessage}`) ||
               "Une erreur interne est survenue. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter votre professeur par mail."}
           </p>
         </div>

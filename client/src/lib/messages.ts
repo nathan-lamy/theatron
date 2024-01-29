@@ -14,6 +14,11 @@ export const ERRORS = {
     message:
       "Vérifiez que vous êtes bien connecté à internet. Si le problème persiste, le serveur est peut-être en maintenance. Veuillez réessayer plus tard.",
   },
+  NOT_FOUND: {
+    title: "Page introuvable",
+    message:
+      "Oh non ! Il semble que vous vous soyez égaré(e) dans les méandres du cyberespace. La page que vous cherchez semble avoir pris des vacances imprévues. Ne vous inquiétez pas, même les meilleures pages ont besoin d'une pause de temps en temps.",
+  },
 };
 
 export const SUCCESS = {
