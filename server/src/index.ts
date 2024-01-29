@@ -57,7 +57,7 @@ const route = app
         email,
         eventId,
       });
-      if (!member || !event) return json({ error: "Invalid token" }, 403);
+      if (!member || !event) return json({ error: "Unknown event" }, 404);
 
       // Generate response payload
       const payload = {
