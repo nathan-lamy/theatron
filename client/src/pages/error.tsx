@@ -3,7 +3,6 @@ import { useLocation, useRouteError } from "react-router-dom";
 export default function Error() {
   const error = useRouteError() as Record<string, string>;
   const errorMessage = error?.statusText || error?.message;
-  // TODO: Handle error from server (Sentry)
   const { state } = useLocation() as {
     state: { error: { title: string; details: string } };
   };

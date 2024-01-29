@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
+import "./lib/sentry";
 
 import ConfirmPage from "./pages/confirm";
 import LoadingConfirmPage from "./pages/loading/confirm";
