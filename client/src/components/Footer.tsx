@@ -4,7 +4,17 @@ export default function Footer() {
       <p className="text-sm text-gray-600 dark:text-gray-400">
         Made with
         <span className="text-red-500"> ❤ </span>
-        by Nathan for Mister Saly{"\n          "}
+        by{" "}
+        <a
+          className="font-medium underline"
+          href="https://github.com/nathan-lamy/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Nathan
+        </a>{" "}
+        for <span className="font-medium">Mister Saly</span>
+        {"\n          "}
       </p>
       <a
         className="text-blue-500 hover:underline"
