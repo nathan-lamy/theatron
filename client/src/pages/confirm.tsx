@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Card,
@@ -20,13 +20,20 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
 import type { EventPayload } from "@server/index";
 
+interface ExtendedEventPayload extends EventPayload {
+  error?: { title: string; message: string };
+}
+
 export default function ConfirmPage() {
   // TODO: Validate payload
-  const withSuspense = useLoaderData() as () => EventPayload;
-  const { event, user, confirmBeforeDate } = withSuspense();
+  const withSuspense = useLoaderData() as () => ExtendedEventPayload;
+  const { event, user, confirmBeforeDate, error } = withSuspense();
 
   const navigate = useNavigate();
   const { toError, toSuccess } = redirect(navigate);
+  useEffect(() => {
+    if (error) toError(error);
+  }, [error, toError]);
 
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(false);

@@ -9,6 +9,11 @@ export const ERRORS = {
     message:
       "Votre place a été libérée et sera attribuée à la prochaine personne sur la liste d'attente. Si vous vous êtes désinscrit volontairement, vous pouvez ignorer ce message.",
   },
+  NETWORK: {
+    title: "Erreur de connexion",
+    message:
+      "Vérifiez que vous êtes bien connecté à internet. Si le problème persiste, le serveur est peut-être en maintenance. Veuillez réessayer plus tard.",
+  },
 };
 
 export const SUCCESS = {

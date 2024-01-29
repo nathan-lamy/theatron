@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 export default function Error() {
   const error = useRouteError() as Record<string, string>;
   const errorMessage = error?.statusText || error?.message;
-  if (errorMessage) Sentry.captureException(errorMessage);
+  if (errorMessage) Sentry.captureMessage(errorMessage);
   const { state } = useLocation() as {
     state: { error: { title: string; message: string } };
   };
