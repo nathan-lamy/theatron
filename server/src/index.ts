@@ -20,7 +20,8 @@ const route = app
   // Confirm event registration (update cell in sheets)
   .post("/events/:id", validateRequest, auth, async ({ req, json }) => {
     const { member, event } = req.data;
-    // TODO: Check if member is already registered
+    if (member.hasConfirmed) return json({ success: true });
+    // Update cell in sheets
     await updateCellValue(event.id, `F${member.uid}`, "TRUE").catch((err) => {
       console.error(err);
       return json({ error: "Failed to update cell" }, 500);
@@ -55,7 +56,6 @@ const route = app
     async ({ req, json }) => {
       const { i } = req.query();
       const { member, event } = req.data;
-      // TODO: Check if member is already registered (if i is provided)
       // Generate response payload
       const payload = {
         user: { ...member, name: `${member.firstName} ${member.lastName}` },
