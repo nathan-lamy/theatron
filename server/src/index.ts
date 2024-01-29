@@ -4,7 +4,13 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
 import { boot as bootMailTransporter } from "../services/mail";
-import { EventInfo, Member, updateCellValue } from "../services/sheets";
+import {
+  EventInfo,
+  Member,
+  deleteRow,
+  getSheetId,
+  updateCellValue,
+} from "../services/sheets";
 import { calculateConfirmBeforeDate } from "../utils/date";
 import { auth, validateRequest } from "../middlewares/auth";
 
@@ -21,6 +27,7 @@ const route = app
   .post("/events/:id", validateRequest, auth, async ({ req, json }) => {
     const { member, event } = req.data;
     if (member.hasConfirmed) return json({ success: true });
+    if (member.onWaitList) return json({ error: "On wait list" }, 403);
     // Update cell in sheets
     await updateCellValue(event.id, `F${member.uid}`, "TRUE").catch((err) => {
       console.error(err);
@@ -35,10 +42,22 @@ const route = app
     validateRequest,
     auth,
     zValidator("json", z.object({ reason: z.string() })),
-    ({ req, json }) => {
-      // TODO: Validate token & logic
-      console.log(req.json());
-      return json({ id: req.param("id") });
+    async ({ req, json }) => {
+      const { member, event } = req.data;
+      // Retrieve sheet id from event id
+      const sheetId = await getSheetId(event.id);
+      // @ts-expect-error Number is not NaN
+      if (Number.isNaN(+sheetId))
+        return json({ error: "Failed to retrieve sheet id" }, 500);
+      // Remove row in sheets
+      console.log(`[DELETE] Removing row ${member.uid} in sheet ${sheetId}`);
+      await deleteRow(sheetId!, member.uid).catch((err) => {
+        console.error(err);
+        return json({ error: "Failed to delete row" }, 500);
+      });
+      // TODO: Send email to admin
+      // TODO: Wait list the next member
+      return json({ success: true });
     }
   )
   // Get event info (member & event)

@@ -53,7 +53,7 @@ export async function boot() {
       }); // Request count : 6
 
       // Send emails to members with this reminder
-      for (const member of members) {
+      for (const member of members.filter((m) => !m.onWaitList)) {
         await sendEventReminder(member, event, {
           name: reminder,
           daysNumber,

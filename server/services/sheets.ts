@@ -239,3 +239,37 @@ export async function getEventAndMemberInfo({
   const event = await getEventInfo(eventId);
   return { member, event };
 }
+
+// CAUTION: index is 1-based
+export async function deleteRow(sheetId: number, rowIndex: number) {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const res = await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: "ROWS",
+              startIndex: rowIndex - 1,
+              endIndex: rowIndex,
+            },
+          },
+        },
+      ],
+    },
+  });
+  return res.data;
+}
+
+// List all sheets in the spreadsheet
+export async function getSheetId(sheetTitle: string) {
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: Bun.env.G_SPREADSHEET_ID,
+    ranges: [sheetTitle],
+    includeGridData: false,
+  });
+  return res.data.sheets?.[0]?.properties?.sheetId;
+}
