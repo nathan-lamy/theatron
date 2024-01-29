@@ -12,5 +12,5 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     },
   });
   if (response.status !== 200) throw response;
-  return response;
+  return response.json();
 }

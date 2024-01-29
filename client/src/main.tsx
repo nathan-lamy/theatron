@@ -1,12 +1,16 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
-import ConfirmEventPage from "./pages/confirm";
+import ConfirmPage from "./pages/confirm";
+import LoadingConfirmPage from "./pages/loading/confirm";
+import { loader as confirmLoader } from "./loaders/confirm";
+
 import Error from "./pages/error";
 import Success from "./pages/success";
-import { loader as confirmLoader } from "./loaders/confirm";
+
+import { withSuspense } from "./lib/suspense";
 
 const router = createBrowserRouter([
   {
@@ -19,8 +23,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/confirm/:eventId",
-    element: <ConfirmEventPage />,
-    loader: confirmLoader,
+    element: (
+      <Suspense fallback={<LoadingConfirmPage />}>
+        <ConfirmPage />
+      </Suspense>
+    ),
+    loader: withSuspense(confirmLoader),
     errorElement: <Error />,
   },
   {

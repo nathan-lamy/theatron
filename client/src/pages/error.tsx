@@ -1,8 +1,8 @@
 import { useLocation, useRouteError } from "react-router-dom";
 
 export default function Error() {
-  // TODO:
-  console.log(useRouteError());
+  const error = useRouteError() as Record<string, string>;
+  const errorMessage = error?.statusText || error?.message;
   const { state } = useLocation() as {
     state: { error: { title: string; details: string } };
   };
@@ -16,7 +16,8 @@ export default function Error() {
             {state?.error?.title || "Erreur interne !"}
           </h2>
           <p className="mt-2 text-gray-600 dark:text-gray-400 px-6">
-            {state?.error?.details ||
+            {(errorMessage && `Détails de l'erreur : ${errorMessage}`) ||
+              state?.error?.details ||
               "Une erreur interne est survenue. Veuillez réessayer plus tard. Si le problème persiste, veuillez contacter votre professeur par mail."}
           </p>
         </div>

@@ -13,14 +13,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import Footer from "@/components/Footer";
 import { client } from "@/lib/api";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
-import { EventPayload } from "@server/index";
+import type { EventPayload } from "@server/index";
 
-const ConfirmEventPage = () => {
+export default function ConfirmPage() {
   // TODO: Validate payload
-  const { event, user, confirmBeforeDate } = useLoaderData() as EventPayload;
+  const withSuspense = useLoaderData() as () => EventPayload;
+  const { event, user, confirmBeforeDate } = withSuspense();
+
   const navigate = useNavigate();
   const { toError, toSuccess } = redirect(navigate);
 
@@ -160,21 +163,7 @@ const ConfirmEventPage = () => {
           </Card>
         </div>
       </div>
-      <footer className="flex flex-col text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Made with
-          <span className="text-red-500"> ❤ </span>
-          by Nathan for Mister Saly{"\n          "}
-        </p>
-        <a
-          className="text-blue-500 hover:underline"
-          href="mailto:adrien.saly@ac-nice.fr"
-        >
-          Un problème ? Contactez-moi !
-        </a>
-      </footer>
+      <Footer />
     </main>
   );
-};
-
-export default ConfirmEventPage;
+}
