@@ -8,6 +8,7 @@ import {
   insertCheckboxes,
   listSheets,
 } from "./sheets";
+import { convertDateStringToDate, parseReminderDate } from "../utils/date";
 
 // Check for reminders to send today and send them
 export async function boot() {
@@ -70,26 +71,6 @@ async function checkForReminder(
   }
 
   // TODO: Send job report mail to admin (with the number of emails sent : success / failure / title / date / reminder / timeTaken)
-}
-
-function convertDateStringToDate(dateString: string) {
-  // Split the date string into day, month, and year
-  const dateParts = dateString.split("/");
-  const day = parseInt(dateParts[0], 10);
-  const month = parseInt(dateParts[1], 10) - 1; // Months in JavaScript are zero-indexed (0-11)
-  const year = parseInt(dateParts[2], 10);
-
-  // Create a Date object from the UTC date parts
-  const date = new Date();
-  date.setUTCHours(0, 0, 0, 0);
-  date.setUTCFullYear(year, month, day);
-  return date;
-}
-
-function parseReminderDate(date: string) {
-  date = date.replace(/ /g, "").replace("J-", "");
-  const numberOfDays = parseInt(date, 10);
-  return numberOfDays;
 }
 
 function isReminderToday(eventDate: Date, reminderDays: number) {

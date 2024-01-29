@@ -13,7 +13,10 @@ import {
   getSheetId,
   updateCellValue,
 } from "../services/sheets";
-import { calculateConfirmBeforeDate } from "../utils/date";
+import {
+  calculateConfirmBeforeFromEventDate,
+  convertDateStringToDate,
+} from "../utils/date";
 import { auth, validateRequest } from "../middlewares/auth";
 
 // Start services
@@ -72,25 +75,17 @@ const route = app
     "/events/:id",
     validateRequest,
     auth,
-    zValidator(
-      "query",
-      z.object({
-        i: z.string().regex(/^\d+$/).optional(),
-      })
-    ),
     // TODO: Cache response & rate limit (slow because of sheets API)
     async ({ req, json }) => {
-      const { i } = req.query();
       const { member, event } = req.data;
       // Generate response payload
       const payload = {
         user: { ...member, name: `${member.firstName} ${member.lastName}` },
         event,
       } as EventPayload;
-      // TODO: Fix confirmBeforeDate
-      // * La date est calculée en fonction de la date du jour, mais il faudrait la calculer en fonction de la date de l'événement
-      // Ne pas modifier la fonction car elle est utilisée dans les mails
-      if (i) payload.confirmBeforeDate = calculateConfirmBeforeDate(+i);
+      payload.confirmBeforeDate = calculateConfirmBeforeFromEventDate(
+        convertDateStringToDate(event.date)
+      );
       return json(payload);
     }
   );

@@ -58,8 +58,10 @@ async function authorize() {
 
 // Global client
 export let client!: OAuth2Client;
+export let REMINDERS: Record<string, string> = {};
 export async function boot() {
   client = await authorize();
+  await getReminders();
 }
 
 // List all sheets in the spreadsheet
@@ -134,11 +136,13 @@ export const getReminders = async () => {
   // NOTE: Max 10 allowed reminders
   const sheetData = await getSheetValue(Bun.env.SETTINGS_SHEET_NAME!, "B6:B15");
   if (sheetData) {
-    return Object.fromEntries(
+    const data = Object.fromEntries(
       sheetData
         .map(([reminder], i) => [i, reminder] as [number, string])
         .filter(([_, name]) => name)
     );
+    REMINDERS = data;
+    return data;
   }
 };
 
@@ -152,7 +156,7 @@ export const getMailSettings = async () => {
       user: sheetData[0][0],
       pass: sheetData[1][0],
       host: sheetData[2][0],
-      maxDaysToConfirm: sheetData[4][0],
+      maxDaysToConfirm: parseInt(sheetData[4][0]),
     };
   }
 };

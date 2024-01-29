@@ -1,13 +1,25 @@
 import { MAX_DAYS_TO_CONFIRM } from "../services/mail";
+import { REMINDERS } from "../services/sheets";
 
 // Calculate the date in french format (DD/MM/YYYY) in x days from now
-export function calculateConfirmBeforeDate(maxDaysToConfirm?: number) {
+export function calculateConfirmBeforeDate() {
   const confirmBefore = new Date();
-  confirmBefore.setUTCDate(
-    confirmBefore.getDate() + (maxDaysToConfirm || MAX_DAYS_TO_CONFIRM)
-  );
+  confirmBefore.setUTCDate(confirmBefore.getDate() + MAX_DAYS_TO_CONFIRM);
   confirmBefore.setUTCHours(0, 0, 0, 0);
   return dateToFrenchString(confirmBefore);
+}
+
+export function calculateConfirmBeforeFromEventDate(eventDate: Date) {
+  const confirmBefore = new Date(eventDate);
+  const daysBefore = parseReminderDate(REMINDERS["0"]);
+  confirmBefore.setUTCDate(
+    confirmBefore.getDate() - daysBefore + MAX_DAYS_TO_CONFIRM
+  );
+  confirmBefore.setUTCHours(0, 0, 0, 0);
+  // Check if the confirmBefore date is not greater than the event date
+  return dateToFrenchString(
+    confirmBefore > eventDate ? eventDate : confirmBefore
+  );
 }
 
 // Convert a Date object to a french date string (DD/MM/YYYY)
@@ -39,4 +51,26 @@ export function getRelativeTimeInFrench(numberOfDays: number) {
 function numberToWordsInFrench(number: number) {
   const units = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept"];
   return units[number];
+}
+
+// Convert a date string (DD/MM/YYYY) to a Date object
+export function convertDateStringToDate(dateString: string) {
+  // Split the date string into day, month, and year
+  const dateParts = dateString.split("/");
+  const day = parseInt(dateParts[0], 10);
+  const month = parseInt(dateParts[1], 10) - 1; // Months in JavaScript are zero-indexed (0-11)
+  const year = parseInt(dateParts[2], 10);
+
+  // Create a Date object from the UTC date parts
+  const date = new Date();
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCFullYear(year, month, day);
+  return date;
+}
+
+// Parse a reminder date string (ex: "J-2") and return the number of days (ex: 2)
+export function parseReminderDate(date: string) {
+  date = date.replace(/ /g, "").replace("J-", "");
+  const numberOfDays = parseInt(date, 10);
+  return numberOfDays;
 }
