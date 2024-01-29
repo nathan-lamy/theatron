@@ -6,7 +6,6 @@ export default function Error() {
   // Handle errors from react-router-dom
   const error = useRouteError() as Record<string, string>;
   const errorMessage = error?.statusText || error?.message;
-  if (errorMessage) Sentry.captureMessage(errorMessage);
   // Handle errors from the server
   const location = useLocation() as {
     state: { error: { title: string; message: string } };
@@ -15,6 +14,7 @@ export default function Error() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   console.log(errorMessage, errorMessage === "Not Found");
   if (errorMessage === "Not Found") state.error = ERRORS.NOT_FOUND;
+  else Sentry.captureMessage(errorMessage);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">
