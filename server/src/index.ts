@@ -2,9 +2,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+
 import { boot } from "../services/cron";
-import { boot as bootMailTransporter } from "../services/mail";
+import { boot as bootMail } from "../services/mail";
 import {
+  boot as bootGoogleSheetsApi,
   EventInfo,
   Member,
   deleteRow,
@@ -14,13 +16,18 @@ import {
 import { calculateConfirmBeforeDate } from "../utils/date";
 import { auth, validateRequest } from "../middlewares/auth";
 
+// Start services
+(async () => {
+  await bootGoogleSheetsApi();
+  await bootMail();
+
+  // TODO: Cron job every day at 6:00 AM (change time in env variables)
+  boot();
+})();
+
+// Start app
 const app = new Hono();
-
 app.use("*", cors());
-
-// TODO: Cron job every day at 6:00 AM (change time in env variables)
-bootMailTransporter();
-boot();
 
 const route = app
   // Confirm event registration (update cell in sheets)

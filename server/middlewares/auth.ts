@@ -12,6 +12,9 @@ export const validateRequest = zValidator(
   })
 );
 
+/**
+ * Middleware to validate the request and retrieve the member and event info
+ */
 export async function auth(c: Context, next: Next) {
   const eventId = c.req.param("id");
   const { email, token } = c.req.query();

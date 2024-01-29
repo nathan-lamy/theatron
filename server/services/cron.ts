@@ -1,6 +1,7 @@
+import type { sheets_v4 } from "googleapis";
 import { sendEventReminder } from "./mail";
 import {
-  boot as bootGoogleSheetsApi,
+  EventInfo,
   getEventInfo,
   getMembers,
   getReminders,
@@ -8,12 +9,8 @@ import {
   listSheets,
 } from "./sheets";
 
-// TODO: Split code and better organize it
-// TODO: Error handling
 // Check for reminders to send today and send them
 export async function boot() {
-  await bootGoogleSheetsApi(); // Request count : 1
-
   const reminders = await getReminders(); // Request count : 2
   if (!reminders) return console.error("[CRON] No reminders found.");
 
@@ -22,48 +19,57 @@ export async function boot() {
 
   for (const sheet of sheets) {
     if (!sheet?.title) continue;
-
-    const event = await getEventInfo(sheet.title); // Request count : 4 (one per sheet)
+    const event = await getEventInfo(sheet.title!); // Request count : 4 (one per sheet)
     if (!event) return console.error("[CRON] No event found.");
 
     const eventDate = convertDateStringToDate(event.date);
     for (const [i, reminder] of Object.entries(reminders)) {
-      // Check if reminder date is today
-      const daysNumber = parseReminderDate(reminder);
-      if (!isReminderToday(eventDate, daysNumber)) continue;
-      console.log(
-        `[CRON] Sending reminder ${reminder} for event ${event.title}`
-      );
-
-      // Get members for this event
-      const members = await getMembers(sheet.title); // Request count : 5
-      if (!members) return console.error("[CRON] No members found.");
-
-      // Insert checkboxes in the sheet for the reminder & the wait list
-      const reminderId = parseInt(i, 10);
-      // 7 is the column index of the first reminder (column E and F; 0-based) and reminderId is the offset (0-based)
-      const reminderColumn = 5 + reminderId;
-      const reminderStartRow = 14; // constant (row 15; 0-based)
-      const reminderEndRow = reminderStartRow + members.length; // variable
-      await insertCheckboxes(sheet.sheetId!, {
-        // NOTE: Indexes are 0-based and END is EXCLUSIVE
-        // NOTE: First value is the row index, second value is the column index
-        start: [reminderStartRow, reminderColumn - 1],
-        end: [reminderEndRow, reminderColumn + 1],
-      }); // Request count : 6
-
-      // Send emails to members with this reminder
-      for (const member of members.filter((m) => !m.onWaitList)) {
-        await sendEventReminder(member, event, {
-          name: reminder,
-          daysNumber,
-          optional: reminderId != 0,
-        });
-      }
-
-      // TODO: Send job report mail to admin (with the number of emails sent : success / failure / title / date / reminder / timeTaken)
+      await checkForReminder(reminder, i === "0", sheet, event, eventDate);
     }
   }
+}
+
+async function checkForReminder(
+  reminderName: string,
+  isFirstReminder: boolean,
+  sheet: sheets_v4.Schema$SheetProperties,
+  event: EventInfo,
+  eventDate: Date
+) {
+  // Check if reminder date is today
+  const daysNumber = parseReminderDate(reminderName);
+  if (!isReminderToday(eventDate, daysNumber)) return;
+  console.log(
+    `[CRON] Sending reminder ${reminderName} for event ${sheet.title}`
+  );
+
+  // Get members for this event
+  const members = await getMembers(sheet.title!); // Request count : 5
+  if (!members) return console.error("[CRON] No members found.");
+
+  // Insert checkboxes for this reminder (if not already inserted)
+  if (isFirstReminder) {
+    const reminderStartRow = 14; // constant (row 15; 0-based)
+    const reminderEndRow = reminderStartRow + members.length; // variable
+    await insertCheckboxes(sheet.sheetId!, {
+      // NOTE: Indexes are 0-based and END is EXCLUSIVE
+      // NOTE: First value is the row index, second value is the column index
+      start: [reminderStartRow, 4],
+      end: [reminderEndRow, 6],
+    }); // Request count : 6
+  }
+
+  // Send emails to members with this reminder
+  for (const member of members.filter((m) => !m.onWaitList)) {
+    await sendEventReminder(member, event, {
+      name: reminderName,
+      daysNumber,
+      optional: !isFirstReminder,
+    });
+    // TODO: Mark reminder as sent in local database (to avoid sending it again)
+  }
+
+  // TODO: Send job report mail to admin (with the number of emails sent : success / failure / title / date / reminder / timeTaken)
 }
 
 function convertDateStringToDate(dateString: string) {

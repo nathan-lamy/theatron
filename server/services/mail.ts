@@ -1,4 +1,4 @@
-import { EventInfo, Member, Reminder } from "./sheets";
+import { EventInfo, Member, Reminder, getMailSettings } from "./sheets";
 import nodemailer from "nodemailer";
 import { generateShortLink } from "../utils/link";
 import {
@@ -6,23 +6,23 @@ import {
   getRelativeTimeInFrench,
 } from "../utils/date";
 
-// TODO: Retrieve from sheets config
-const [SMTP_HOST, SMTP_USER, SMTP_PASSWORD] = [
-  "smtp.gmail.com",
-  process.env.SMTP_USER,
-  process.env.SMTP_PASSWORD,
-];
-
 export let transporter: nodemailer.Transporter;
+export let MAX_DAYS_TO_CONFIRM: number;
+export let SMTP_USER: string;
 
-export function boot() {
+export async function boot() {
+  const settings = await getMailSettings();
+  if (!settings) throw new Error("Missing mail settings");
+  MAX_DAYS_TO_CONFIRM = settings.maxDaysToConfirm;
+  SMTP_USER = settings.user;
+  const { host, user, pass } = settings;
   transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
+    host,
     port: 465,
     secure: true,
     auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASSWORD,
+      user,
+      pass,
     },
   });
 }

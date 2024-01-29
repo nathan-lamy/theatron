@@ -142,6 +142,21 @@ export const getReminders = async () => {
   }
 };
 
+export const getMailSettings = async () => {
+  const sheetData = await getSheetValue(
+    Bun.env.SETTINGS_SHEET_NAME!,
+    "B22:B26"
+  );
+  if (sheetData) {
+    return {
+      user: sheetData[0][0],
+      pass: sheetData[1][0],
+      host: sheetData[2][0],
+      maxDaysToConfirm: sheetData[4][0],
+    };
+  }
+};
+
 export type Member = {
   lastName: string;
   firstName: string;

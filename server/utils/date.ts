@@ -1,12 +1,11 @@
-// TODO: Retrieve from sheets config
-const MAX_DAYS_TO_CONFIRM = 4;
+import { MAX_DAYS_TO_CONFIRM } from "../services/mail";
 
 // Calculate the date in french format (DD/MM/YYYY) in x days from now
-export function calculateConfirmBeforeDate(
-  maxDaysToConfirm: number = MAX_DAYS_TO_CONFIRM
-) {
+export function calculateConfirmBeforeDate(maxDaysToConfirm?: number) {
   const confirmBefore = new Date();
-  confirmBefore.setUTCDate(confirmBefore.getDate() + maxDaysToConfirm);
+  confirmBefore.setUTCDate(
+    confirmBefore.getDate() + (maxDaysToConfirm || MAX_DAYS_TO_CONFIRM)
+  );
   confirmBefore.setUTCHours(0, 0, 0, 0);
   return dateToFrenchString(confirmBefore);
 }
