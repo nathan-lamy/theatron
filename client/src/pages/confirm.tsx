@@ -38,21 +38,25 @@ export default function ConfirmPage() {
 
   async function confirm() {
     setIsLoading(true);
-    await client.events[":id"].$post({
+    const res = await client.events[":id"].$post({
       param: { id: event.id },
       query: { token, email: user.email },
     });
-    toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
+    if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
+    // if (res.status === 403) toError(ERRORS.INVALID_TOKEN);
+    // if (res.status === 404) toError(ERRORS.EVENT_NOT_FOUND);
+    else toError();
   }
 
   async function cancel() {
     setIsLoading(true);
-    await client.events[":id"].$delete({
+    const res = await client.events[":id"].$delete({
       param: { id: event.id },
       json: { reason },
       query: { token, email: user.email },
     });
-    toSuccess(SUCCESS.REGISTRATION_CANCELED);
+    if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CANCELED);
+    else toError();
   }
 
   return (

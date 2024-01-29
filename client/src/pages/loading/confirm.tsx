@@ -22,10 +22,7 @@ export default function LoadingConfirmPage() {
                 <Skeleton className="h-8" />
                 <Skeleton className="h-4 mt-2" />
               </CardTitle>
-              <CardDescription>
-                {/* TODO: Higher */}
-                <Skeleton className="h-14" />
-              </CardDescription>
+              <Skeleton className="h-14" />
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

@@ -12,7 +12,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     query: {
       email: url.searchParams.get("email")!,
       token: url.searchParams.get("token")!,
-      i: url.searchParams.get("i")!,
     },
   });
   if (response.status !== 200) throw response;

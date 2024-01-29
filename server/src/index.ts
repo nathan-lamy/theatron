@@ -98,7 +98,7 @@ interface NamedMember extends Member {
 export interface EventPayload {
   user: NamedMember;
   event: EventInfo;
-  confirmBeforeDate?: string;
+  confirmBeforeDate: string;
 }
 
 export default app;

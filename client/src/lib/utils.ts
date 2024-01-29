@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const redirect = (navigate: NavigateFunction) => ({
-  toError: (error: (typeof ERRORS)[keyof typeof ERRORS]) =>
+  toError: (error?: (typeof ERRORS)[keyof typeof ERRORS]) =>
     navigate(`/error`, { state: { error } }),
   toSuccess: (message: (typeof SUCCESS)[keyof typeof SUCCESS]) =>
     navigate(`/success`, { state: { message } }),
