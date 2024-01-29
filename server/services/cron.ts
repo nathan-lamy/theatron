@@ -39,9 +39,9 @@ export async function boot() {
       const members = await getMembers(sheet.title); // Request count : 5
       if (!members) return console.error("[CRON] No members found.");
 
-      // Insert checkboxes in the sheet for this reminder
+      // TODO: Insert checkboxes in the sheet for the reminder & the wait list
       const reminderId = parseInt(i, 10);
-      // 7 is the column index of the first reminder (column G; 0-based) and reminderId is the offset (0-based)
+      // 7 is the column index of the first reminder (column E and F; 0-based) and reminderId is the offset (0-based)
       const reminderColumn = 7 + reminderId;
       const reminderStartRow = 14; // constant (row 15; 0-based)
       const reminderEndRow = reminderStartRow + members.length; // variable

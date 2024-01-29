@@ -4,7 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { boot } from "../services/cron";
 import { boot as bootMailTransporter } from "../services/mail";
-import { EventInfo, Member, getEventAndMemberInfo } from "../services/sheets";
+import { EventInfo, Member, updateCellValue } from "../services/sheets";
 import { calculateConfirmBeforeDate } from "../utils/date";
 import { auth, validateRequest } from "../middlewares/auth";
 
@@ -18,10 +18,15 @@ boot();
 
 const route = app
   // Confirm event registration (update cell in sheets)
-  .post("/events/:id", validateRequest, auth, ({ req, json }) => {
-    // TODO: Validate token & logic
-    console.log(req.json());
-    return json({ id: req.param("id") });
+  .post("/events/:id", validateRequest, auth, async ({ req, json }) => {
+    const { member, event } = req.data;
+    // TODO: Check if member is already registered
+    await updateCellValue(event.id, `F${member.uid}`, "TRUE").catch((err) => {
+      console.error(err);
+      return json({ error: "Failed to update cell" }, 500);
+    });
+    // TODO: Send confirmation email
+    return json({ success: true });
   })
   // Delete event registration (remove row in sheets)
   .delete(
@@ -48,17 +53,9 @@ const route = app
     ),
     // TODO: Cache response & rate limit (slow because of sheets API)
     async ({ req, json }) => {
-      const eventId = req.param("id");
-      console.log("INCOMING REQUEST FOR EVENT", eventId);
-      const { email, i } = req.query();
-
-      // Retrieve event and member info from sheets
-      const { member, event } = await getEventAndMemberInfo({
-        email,
-        eventId,
-      });
-      if (!member || !event) return json({ error: "Unknown event" }, 404);
-
+      const { i } = req.query();
+      const { member, event } = req.data;
+      // TODO: Check if member is already registered (if i is provided)
       // Generate response payload
       const payload = {
         user: { ...member, name: `${member.firstName} ${member.lastName}` },

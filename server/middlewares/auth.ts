@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { verifyShortLink } from "../utils/link";
-import { Context, Next } from "hono";
+import { getEventAndMemberInfo } from "../services/sheets";
+import type { Context, Next } from "hono";
 
 export const validateRequest = zValidator(
   "query",
@@ -17,5 +18,12 @@ export async function auth(c: Context, next: Next) {
   if (!verifyShortLink({ email, eventId, token })) {
     return c.json({ error: "Invalid token" }, 403);
   }
+  // Retrieve event and member info from sheets
+  const { member, event } = await getEventAndMemberInfo({
+    email,
+    eventId,
+  });
+  if (!member || !event) return c.json({ error: "Unknown event" }, 404);
+  c.req.data = { member, event };
   await next();
 }
