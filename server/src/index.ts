@@ -38,7 +38,7 @@ const route = app
   .post("/events/:id", validateRequest, auth, async ({ req, json }) => {
     const { member, event } = req.data;
     if (member.hasConfirmed) return json({ success: true });
-    if (member.onWaitList) return json({ error: "On wait list" }, 403);
+    if (member.onWaitList) return json({ error: "On wait list" }, 401);
     // Update cell in sheets
     await updateCellValue(event.id, `F${member.uid}`, "TRUE").catch((err) => {
       console.error(err);

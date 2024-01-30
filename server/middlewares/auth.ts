@@ -28,7 +28,6 @@ export async function auth(c: Context, next: Next) {
   });
   if (!member || !event || !members?.length)
     return c.json({ error: "Unknown event" }, 404);
-  if (member.onWaitList) return c.json({ error: "On wait list" }, 401);
   // Add data to request
   c.req.data = { member, members, event };
   await next();

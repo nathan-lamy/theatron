@@ -35,7 +35,9 @@ export default function ConfirmPage() {
   }, [error, toError]);
 
   // Canceling state (for UI)
-  const [isCanceling, setIsCanceling] = useState(!!user.hasConfirmed);
+  const [isCanceling, setIsCanceling] = useState(
+    !!user.hasConfirmed || !!user.onWaitList
+  );
   const [reason, setReason] = useState("");
   // Loading state for API calls (button disabled)
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +54,7 @@ export default function ConfirmPage() {
       })
       .catch((err) => err);
     if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
+    else if (res.status === 401) toError(ERRORS.ON_WAIT_LIST);
     else if (res.status === 403) toError(ERRORS.INVALID_LINK);
     else if (res.status === 404) toError(ERRORS.EXPIRED_LINK);
     else toError();
@@ -144,8 +147,8 @@ export default function ConfirmPage() {
                     <Button
                       className="flex-1"
                       variant="outline"
-                      onClick={() => setIsCanceling(false)}
-                      disabled={isLoading}
+                      onClick={() => !user.onWaitList && setIsCanceling(false)}
+                      disabled={isLoading || user.onWaitList}
                     >
                       ANNULER
                     </Button>

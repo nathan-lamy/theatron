@@ -42,8 +42,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   else if (response.status === 200) return response.json();
   else if (response.status === 403 || response.status === 400)
     return { error: ERRORS.INVALID_LINK, ...MOCK_DATA };
-  else if (response.status === 401)
-    return { error: ERRORS.ON_WAIT_LIST, ...MOCK_DATA };
   else if (response.status === 404)
     return { error: ERRORS.EXPIRED_LINK, ...MOCK_DATA };
   else throw response;
