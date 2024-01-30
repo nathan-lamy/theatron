@@ -23,8 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# TODO: Remove
-old/
+# Project specific files
 credentials.json
 token.json
 .env*
+database.sqlite

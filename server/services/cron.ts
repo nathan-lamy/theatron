@@ -1,5 +1,9 @@
 import type { sheets_v4 } from "googleapis";
-import { sendEventReminder, sendWaitListReminder } from "./mail";
+import {
+  MAX_DAYS_TO_CONFIRM,
+  sendEventReminder,
+  sendWaitListReminder,
+} from "./mail";
 import {
   EventInfo,
   getEventInfo,
@@ -9,6 +13,7 @@ import {
   listSheets,
 } from "./sheets";
 import { convertDateStringToDate, parseReminderDate } from "../utils/date";
+import { getJobsByEventId } from "./database";
 
 // Check for reminders to send today and send them
 export async function boot() {
@@ -26,6 +31,22 @@ export async function boot() {
     const eventDate = convertDateStringToDate(event.date);
     for (const [i, reminder] of Object.entries(reminders)) {
       await checkForReminder(reminder, i === "0", sheet, event, eventDate);
+    }
+
+    const jobs = getJobsByEventId(event.id);
+    for (const job of jobs) {
+      // Check if job date + MAX_DAYS_TO_CONFIRM is today or before (i.e. not yet confirmed)
+      const jobTime = (job.executedDate as Date).getTime();
+      let maxTime = jobTime + MAX_DAYS_TO_CONFIRM * 24 * 60 * 60 * 1000;
+      // Potential bug: This is taking the exact time into account, not just the date (i.e. if the job was executed at 11:59 PM, it will be deleted at 12:00 AM)
+      maxTime -= 2 * 60 * 60 * 1000;
+      if (maxTime <= Date.now()) {
+        // TODO: Désinscription automatique si pas de réponse avec mail !
+        //         Bonjour
+        // Sans réponse de votre part, votre place a été réattribuée.
+        // Bien cordialement
+        // A. Saly
+      }
     }
   }
 }
