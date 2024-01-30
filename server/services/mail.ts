@@ -51,19 +51,44 @@ export const sendEventReminder = async (
   );
 };
 
+// TODO: sendWaitListReminder
+export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
+  // Load mail template
+  const { text, html } = await loadMailTemplate("mails/confirm", {
+    member,
+    event,
+    isOnWaitList: true,
+  });
+  // Send mail
+  await sendMail(
+    member.email,
+    `[CONFIRMATION] ${event.title} ${event.details}`,
+    { text, html }
+  );
+};
+
 async function loadMailTemplate(
   fileName: string,
   {
     member,
     event,
     reminder,
-  }: { member: Member; event: EventInfo; reminder: Reminder }
+    isOnWaitList,
+  }: {
+    member: Member;
+    event: EventInfo;
+    reminder?: Reminder;
+    isOnWaitList?: boolean;
+  }
 ) {
   let templates = [
     await Bun.file(fileName + ".txt").text(),
     await Bun.file(fileName + ".html").text(),
   ];
   const variables = {
+    "{{header}}": isOnWaitList
+      ? "Des suites d'un désistement, une place a pu vous être attribuée pour le spectacle suivant :"
+      : "Vous êtes pré-inscrit au spectacle suivant :",
     "{{user.name}}": member.firstName + " " + member.lastName,
     "{{event.name}}": event.title,
     "{{event.details}}": event.details,
@@ -72,8 +97,12 @@ async function loadMailTemplate(
       eventId: event.id,
       email: member.email,
     }),
-    "{{event.relativeDate}}": getRelativeTimeInFrench(reminder.daysNumber!),
-  };
+  } as Record<string, string>;
+  // REMINDER ONLY
+  if (reminder)
+    variables["{{event.relativeDate}}"] = getRelativeTimeInFrench(
+      reminder.daysNumber!
+    );
   templates = templates.map((template) =>
     Object.entries(variables).reduce(
       (template, [key, value]) => template.replaceAll(key, value),

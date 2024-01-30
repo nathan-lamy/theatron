@@ -4,7 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
 import { boot } from "../services/cron";
-import { boot as bootMail } from "../services/mail";
+import { boot as bootMail, sendWaitListAlert } from "../services/mail";
 import {
   boot as bootGoogleSheetsApi,
   EventInfo,
@@ -60,7 +60,9 @@ const route = app
       if (Number.isNaN(+sheetId))
         return json({ error: "Failed to retrieve sheet id" }, 500);
       // Get first member on wait list
-      const [firstMemberOnWaitList] = sortWaitList(members);
+      const [firstMemberOnWaitList] = sortWaitList(
+        members.filter((m) => m.onWaitList)
+      );
       if (firstMemberOnWaitList)
         // Remove it from wait list
         await updateCellValue(
@@ -78,7 +80,9 @@ const route = app
         return json({ error: "Failed to delete row" }, 500);
       });
       // TODO: Send email to admin
-      // TODO: Send wait list email
+      // Send wait list alert to first member on wait list
+      if (firstMemberOnWaitList)
+        await sendWaitListAlert(firstMemberOnWaitList, event);
       return json({ success: true });
     }
   )
