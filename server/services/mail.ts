@@ -5,7 +5,7 @@ import {
   calculateConfirmBeforeDate,
   getRelativeTimeInFrench,
 } from "../utils/date";
-import { checkAndAddJob } from "./database";
+import { checkJob, insertJob } from "./database";
 
 export let transporter: nodemailer.Transporter;
 export let MAX_DAYS_TO_CONFIRM: number;
@@ -35,7 +35,7 @@ export const sendEventReminder = async (
 ) => {
   const emailId = reminder.optional ? "reminder" : "confirm";
   // Check if mail has already been sent
-  if (checkAndAddJob(event.id, member.email, emailId)) return;
+  if (checkJob(event.id, member.email, emailId)) return;
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/" + emailId, {
     member,
@@ -50,6 +50,7 @@ export const sendEventReminder = async (
     }`,
     { text, html }
   );
+  insertJob(event.id, member.email, emailId);
 };
 
 export const sendWaitListReminder = async (
@@ -57,7 +58,7 @@ export const sendWaitListReminder = async (
   event: EventInfo
 ) => {
   // Check if mail has already been sent
-  if (checkAndAddJob(event.id, member.email, "on_wait_list")) return;
+  if (checkJob(event.id, member.email, "on_wait_list")) return;
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/on_wait_list", {
     member,
@@ -72,11 +73,12 @@ export const sendWaitListReminder = async (
       html,
     }
   );
+  insertJob(event.id, member.email, "on_wait_list");
 };
 
 export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
   // Check if mail has already been sent
-  if (checkAndAddJob(event.id, member.email, "confirm")) return;
+  if (checkJob(event.id, member.email, "confirm")) return;
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/confirm", {
     member,
@@ -89,6 +91,7 @@ export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
     `[CONFIRMATION] ${event.title} ${event.details}`,
     { text, html }
   );
+  insertJob(event.id, member.email, "confirm");
 };
 
 async function loadMailTemplate(

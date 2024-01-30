@@ -23,8 +23,8 @@ db.query(
 `
 ).run();
 
-// Function to add a job with emailId
-export function addJob(eventId: string, userEmail: string, emailId: string) {
+// Function to insert a job with emailId
+export function insertJob(eventId: string, userEmail: string, emailId: string) {
   const currentDate = new Date().toISOString();
   return db
     .query(
@@ -36,21 +36,9 @@ export function addJob(eventId: string, userEmail: string, emailId: string) {
     .run(eventId, userEmail, emailId, currentDate);
 }
 
-// Function to check if a job has already been run, and add it if not
-export function checkAndAddJob(
-  eventId: string,
-  userEmail: string,
-  emailId: string
-): boolean {
-  const existingDate = getJobDate(eventId, userEmail, emailId);
-  if (existingDate) {
-    console.log("[MAIL] Job already executed, skipping");
-    return true;
-  }
-  // Job hasn't been executed, add it
-  addJob(eventId, userEmail, emailId);
-  return false;
-}
+// Function to check if a job has already been run
+export const checkJob = (eventId: string, userEmail: string, emailId: string) =>
+  !!getJobDate(eventId, userEmail, emailId);
 
 // Function to retrieve the executed date of a job
 export function getJobDate(
