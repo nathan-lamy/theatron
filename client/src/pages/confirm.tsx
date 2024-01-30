@@ -25,7 +25,6 @@ interface ExtendedEventPayload extends EventPayload {
 }
 
 export default function ConfirmPage() {
-  // TODO: Validate payload
   const withSuspense = useLoaderData() as () => ExtendedEventPayload;
   const { event, user, confirmBeforeDate, error } = withSuspense();
 
@@ -36,7 +35,7 @@ export default function ConfirmPage() {
   }, [error, toError]);
 
   // Canceling state (for UI)
-  const [isCanceling, setIsCanceling] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(!!user.hasConfirmed);
   const [reason, setReason] = useState("");
   // Loading state for API calls (button disabled)
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +66,6 @@ export default function ConfirmPage() {
         query: { token, email: user.email },
       })
       .catch((err) => err);
-    console.log(res);
     if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CANCELED);
     else if (res.status === 403) toError(ERRORS.INVALID_LINK);
     else if (res.status === 404) toError(ERRORS.EXPIRED_LINK);

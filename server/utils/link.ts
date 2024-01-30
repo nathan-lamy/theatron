@@ -1,5 +1,4 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { Reminder } from "../services/sheets";
 
 // Use HMAC to generate a token (SHA1)
 const generateToken = ({
@@ -17,17 +16,14 @@ const generateToken = ({
 export const generateShortLink = ({
   eventId,
   email,
-  reminder,
 }: {
   eventId: string;
   email: string;
-  reminder: Reminder;
 }) => {
   const url = new URL(Bun.env.FRONTEND_URL!);
   url.pathname = "/confirm/" + eventId;
   url.searchParams.set("token", generateToken({ eventId, email }));
   url.searchParams.set("email", email);
-  url.searchParams.set("i", reminder.daysNumber!.toString());
   return url.toString();
 };
 

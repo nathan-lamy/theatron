@@ -71,7 +71,6 @@ async function loadMailTemplate(
     "{{link}}": generateShortLink({
       eventId: event.id,
       email: member.email,
-      reminder,
     }),
     "{{event.relativeDate}}": getRelativeTimeInFrench(reminder.daysNumber!),
   };

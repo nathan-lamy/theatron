@@ -16,6 +16,7 @@ const MOCK_DATA = {
   user: {
     email: "adrien.saly@ac-nice.fr",
     name: "Adrien Saly",
+    hasConfirmed: false,
   },
   confirmBeforeDate: "01/01/2000",
 } as EventPayload;
