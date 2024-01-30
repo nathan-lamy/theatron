@@ -69,10 +69,7 @@ async function checkForReminder(
         daysNumber,
         optional: !isFirstReminder,
       });
-    // TODO: Mark reminder as sent in local database (to avoid sending it again)
   }
-
-  // TODO: Send job report mail to admin (with the number of emails sent : success / failure / title / date / reminder / timeTaken)
 }
 
 function isReminderToday(eventDate: Date, reminderDays: number) {
