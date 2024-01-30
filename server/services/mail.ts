@@ -5,6 +5,7 @@ import {
   calculateConfirmBeforeDate,
   getRelativeTimeInFrench,
 } from "../utils/date";
+import { checkAndAddJob } from "./database";
 
 export let transporter: nodemailer.Transporter;
 export let MAX_DAYS_TO_CONFIRM: number;
@@ -32,15 +33,15 @@ export const sendEventReminder = async (
   event: EventInfo,
   reminder: Reminder
 ) => {
+  const emailId = reminder.optional ? "reminder" : "confirm";
+  // Check if mail has already been sent
+  if (checkAndAddJob(event.id, member.email, emailId)) return;
   // Load mail template
-  const { text, html } = await loadMailTemplate(
-    "mails/" + (reminder.optional ? "reminder" : "confirm"),
-    {
-      member,
-      event,
-      reminder,
-    }
-  );
+  const { text, html } = await loadMailTemplate("mails/" + emailId, {
+    member,
+    event,
+    reminder,
+  });
   // Send mail
   await sendMail(
     member.email,
@@ -55,6 +56,8 @@ export const sendWaitListReminder = async (
   member: Member,
   event: EventInfo
 ) => {
+  // Check if mail has already been sent
+  if (checkAndAddJob(event.id, member.email, "on_wait_list")) return;
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/on_wait_list", {
     member,
@@ -72,6 +75,8 @@ export const sendWaitListReminder = async (
 };
 
 export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
+  // Check if mail has already been sent
+  if (checkAndAddJob(event.id, member.email, "confirm")) return;
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/confirm", {
     member,
@@ -143,5 +148,5 @@ export async function sendMail(
     text,
     html,
   });
-  console.log("Message sent: %s", message.messageId);
+  console.log("[MAIL] Message sent: %s", message.messageId);
 }
