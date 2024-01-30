@@ -19,6 +19,11 @@ export const ERRORS = {
     message:
       "Oh non ! Il semble que vous vous soyez égaré(e) dans les méandres du cyberespace. La page que vous cherchez semble avoir pris des vacances imprévues. Ne vous inquiétez pas, même les meilleures pages ont besoin d'une pause de temps en temps.",
   },
+  ON_WAIT_LIST: {
+    title: "Vous êtes sur liste d'attente",
+    message:
+      "Vous ne pouvez pas effectuer cette action car vous êtes sur la liste d'attente pour ce spectacle. Vous recevrez un mail si une place se libère.",
+  },
 };
 
 export const SUCCESS = {
