@@ -51,7 +51,26 @@ export const sendEventReminder = async (
   );
 };
 
-// TODO: sendWaitListReminder
+export const sendWaitListReminder = async (
+  member: Member,
+  event: EventInfo
+) => {
+  // Load mail template
+  const { text, html } = await loadMailTemplate("mails/on_wait_list", {
+    member,
+    event,
+  });
+  // Send mail
+  await sendMail(
+    member.email,
+    `[LISTE D'ATTENTE] ${event.title} ${event.details}`,
+    {
+      text,
+      html,
+    }
+  );
+};
+
 export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
   // Load mail template
   const { text, html } = await loadMailTemplate("mails/confirm", {

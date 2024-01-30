@@ -1,5 +1,5 @@
 import type { sheets_v4 } from "googleapis";
-import { sendEventReminder } from "./mail";
+import { sendEventReminder, sendWaitListReminder } from "./mail";
 import {
   EventInfo,
   getEventInfo,
@@ -61,12 +61,14 @@ async function checkForReminder(
   }
 
   // Send emails to members with this reminder
-  for (const member of members.filter((m) => !m.onWaitList)) {
-    await sendEventReminder(member, event, {
-      name: reminderName,
-      daysNumber,
-      optional: !isFirstReminder,
-    });
+  for (const member of members) {
+    if (member.onWaitList) await sendWaitListReminder(member, event);
+    else
+      await sendEventReminder(member, event, {
+        name: reminderName,
+        daysNumber,
+        optional: !isFirstReminder,
+      });
     // TODO: Mark reminder as sent in local database (to avoid sending it again)
   }
 

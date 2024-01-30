@@ -1,0 +1,13 @@
+Liste d'attente pour le théâtre 🎭
+
+Bonjour {{user.name}},
+
+Vous êtes sur liste d'attente pour le spectacle suivant : 
+
+{{event.name}}
+
+A ce jour, il n'y a plus de places disponibles mais vous serez recontacté si une place se libère.
+Si vous n'êtes plus intéressé, merci de me prévenir en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
+{{link}}
+
+Bien Cordialement, A. Saly
