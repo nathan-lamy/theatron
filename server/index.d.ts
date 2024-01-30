@@ -5,6 +5,7 @@ declare module "hono" {
   export interface HonoRequest {
     data: {
       member: Member;
+      members: Member[];
       event: EventInfo;
     };
   }

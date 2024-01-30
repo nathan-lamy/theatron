@@ -14,7 +14,7 @@ export default function Error() {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   console.log(errorMessage, errorMessage === "Not Found");
   if (errorMessage === "Not Found") state.error = ERRORS.NOT_FOUND;
-  else Sentry.captureMessage(errorMessage);
+  else if (errorMessage) Sentry.captureMessage(errorMessage);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-red-100 dark:bg-red-900">

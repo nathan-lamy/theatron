@@ -13,6 +13,7 @@ import {
   getSheetId,
   updateCellValue,
 } from "../services/sheets";
+import { sortWaitList } from "../services/queue";
 import {
   calculateConfirmBeforeFromEventDate,
   convertDateStringToDate,
@@ -33,7 +34,7 @@ const app = new Hono();
 app.use("*", cors());
 
 const route = app
-  // Confirm event registration (update cell in sheets)
+  // POST - Confirm event registration (update cell in sheets)
   .post("/events/:id", validateRequest, auth, async ({ req, json }) => {
     const { member, event } = req.data;
     if (member.hasConfirmed) return json({ success: true });
@@ -43,22 +44,33 @@ const route = app
       console.error(err);
       return json({ error: "Failed to update cell" }, 500);
     });
-    // TODO: Send confirmation email
     return json({ success: true });
   })
-  // Delete event registration (remove row in sheets)
+  // DELETE event registration (remove row in sheets)
   .delete(
     "/events/:id",
     validateRequest,
     auth,
     zValidator("json", z.object({ reason: z.string() })),
     async ({ req, json }) => {
-      const { member, event } = req.data;
+      const { member, members, event } = req.data;
       // Retrieve sheet id from event id
       const sheetId = await getSheetId(event.id);
       // @ts-expect-error Number is not NaN
       if (Number.isNaN(+sheetId))
         return json({ error: "Failed to retrieve sheet id" }, 500);
+      // Get first member on wait list
+      const [firstMemberOnWaitList] = sortWaitList(members);
+      if (firstMemberOnWaitList)
+        // Remove it from wait list
+        await updateCellValue(
+          event.id,
+          `E${firstMemberOnWaitList.uid}`,
+          "FALSE"
+        ).catch((err) => {
+          console.error(err);
+          return json({ error: "Failed to update cell" }, 500);
+        });
       // Remove row in sheets
       console.log(`[DELETE] Removing row ${member.uid} in sheet ${sheetId}`);
       await deleteRow(sheetId!, member.uid).catch((err) => {
@@ -66,7 +78,7 @@ const route = app
         return json({ error: "Failed to delete row" }, 500);
       });
       // TODO: Send email to admin
-      // TODO: Wait list the next member
+      // TODO: Send wait list email
       return json({ success: true });
     }
   )

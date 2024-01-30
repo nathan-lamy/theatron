@@ -246,19 +246,6 @@ export async function insertCheckboxes(
   return res.data;
 }
 
-export async function getEventAndMemberInfo({
-  email,
-  eventId,
-}: {
-  email: string;
-  eventId: string;
-}) {
-  const members = await getMembers(eventId);
-  const member = members?.find((member) => member.email === email);
-  const event = await getEventInfo(eventId);
-  return { member, event };
-}
-
 // CAUTION: index is 1-based
 export async function deleteRow(sheetId: number, rowIndex: number) {
   const sheets = google.sheets({ version: "v4", auth: client });

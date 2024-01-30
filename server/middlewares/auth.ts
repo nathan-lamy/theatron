@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { verifyShortLink } from "../utils/link";
-import { getEventAndMemberInfo } from "../services/sheets";
+import { getEventInfo, getMembers } from "../services/sheets";
 import type { Context, Next } from "hono";
 
 export const validateRequest = zValidator(
@@ -22,13 +22,27 @@ export async function auth(c: Context, next: Next) {
     return c.json({ error: "Invalid token" }, 403);
   }
   // Retrieve event and member info from sheets
-  const { member, event } = await getEventAndMemberInfo({
+  const { member, members, event } = await getEventAndMemberInfo({
     email,
     eventId,
   });
-  if (!member || !event) return c.json({ error: "Unknown event" }, 404);
+  if (!member || !event || !members?.length)
+    return c.json({ error: "Unknown event" }, 404);
   if (member.onWaitList) return c.json({ error: "On wait list" }, 401);
   // Add data to request
-  c.req.data = { member, event };
+  c.req.data = { member, members, event };
   await next();
+}
+
+async function getEventAndMemberInfo({
+  email,
+  eventId,
+}: {
+  email: string;
+  eventId: string;
+}) {
+  const members = await getMembers(eventId);
+  const member = members?.find((member) => member.email === email);
+  const event = await getEventInfo(eventId);
+  return { member, members, event };
 }
