@@ -11,8 +11,6 @@ export default function Error() {
     state: { error: { title: string; message: string } };
   };
   const state = location.state || {};
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  console.log(errorMessage, errorMessage === "Not Found");
   if (errorMessage === "Not Found") state.error = ERRORS.NOT_FOUND;
   else if (errorMessage) Sentry.captureMessage(errorMessage);
 
