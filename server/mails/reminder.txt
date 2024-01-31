@@ -1,9 +1,6 @@
-Rappel d'inscription au théâtre 🎭
-
 Bonjour {{user.name}},
 
 Vous êtes inscrit au spectacle suivant :
-
 {{event.name}}
 
 Pour rappel, la représentation aura lieu dans {{event.relativeDate}}.

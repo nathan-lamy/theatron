@@ -1,9 +1,6 @@
-Inscription au théâtre 🎭
-
 Bonjour {{user.name}},
 
 Vous êtes pré-inscrit au spectacle suivant :
-
 {{event.name}}
 
 Veuillez confirmer votre inscription avant le {{event.confirmBeforeDate}} en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :

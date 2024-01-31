@@ -1,9 +1,6 @@
-Liste d'attente pour le théâtre 🎭
-
 Bonjour {{user.name}},
 
 Vous êtes sur liste d'attente pour le spectacle suivant : 
-
 {{event.name}}
 
 A ce jour, il n'y a plus de places disponibles mais vous serez recontacté si une place se libère.

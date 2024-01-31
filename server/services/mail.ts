@@ -94,6 +94,20 @@ export const sendWaitListAlert = async (member: Member, event: EventInfo) => {
   insertJob(event.id, member.email, "confirm");
 };
 
+export const sendEventExpired = async (member: Member, event: EventInfo) => {
+  // Load mail template
+  const { text } = await loadMailTemplate("mails/expired", {
+    member,
+    event,
+    textOnly: true,
+  });
+  // Send mail
+  await sendMail(member.email, `[ANNULATION] ${event.title} ${event.details}`, {
+    text,
+  });
+  insertJob(event.id, member.email, "expired");
+};
+
 async function loadMailTemplate(
   fileName: string,
   {
@@ -101,17 +115,18 @@ async function loadMailTemplate(
     event,
     reminder,
     isOnWaitList,
+    textOnly,
   }: {
     member: Member;
     event: EventInfo;
     reminder?: Reminder;
     isOnWaitList?: boolean;
+    textOnly?: boolean;
   }
 ) {
-  let templates = [
-    await Bun.file(fileName + ".txt").text(),
-    await Bun.file(fileName + ".html").text(),
-  ];
+  let templates = [await Bun.file(fileName + ".txt").text()];
+  if (!textOnly) templates.push(await Bun.file(fileName + ".html").text());
+
   const variables = {
     "{{header}}": isOnWaitList
       ? "Des suites d'un désistement, une place a pu vous être attribuée pour le spectacle suivant :"
@@ -142,7 +157,7 @@ async function loadMailTemplate(
 export async function sendMail(
   email: string,
   subject: string,
-  { text, html }: { text: string; html: string }
+  { text, html }: { text: string; html?: string }
 ) {
   const message = await transporter.sendMail({
     from: SMTP_USER,

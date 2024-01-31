@@ -1,19 +1,24 @@
 import type { sheets_v4 } from "googleapis";
 import {
   MAX_DAYS_TO_CONFIRM,
+  sendEventExpired,
   sendEventReminder,
+  sendWaitListAlert,
   sendWaitListReminder,
 } from "./mail";
 import {
   EventInfo,
+  deleteRow,
   getEventInfo,
   getMembers,
   getReminders,
   insertCheckboxes,
   listSheets,
+  updateCellValue,
 } from "./sheets";
 import { convertDateStringToDate, parseReminderDate } from "../utils/date";
-import { getJobsByEventId } from "./database";
+import { checkJob, getJobsByEventId } from "./database";
+import { sortWaitList } from "./queue";
 
 // Check for reminders to send today and send them
 export async function boot() {
@@ -34,18 +39,51 @@ export async function boot() {
     }
 
     const jobs = getJobsByEventId(event.id);
-    for (const job of jobs) {
-      // Check if job date + MAX_DAYS_TO_CONFIRM is today or before (i.e. not yet confirmed)
-      const jobTime = (job.executedDate as Date).getTime();
-      let maxTime = jobTime + MAX_DAYS_TO_CONFIRM * 24 * 60 * 60 * 1000;
-      // Potential bug: This is taking the exact time into account, not just the date (i.e. if the job was executed at 11:59 PM, it will be deleted at 12:00 AM)
-      maxTime -= 2 * 60 * 60 * 1000;
-      if (maxTime <= Date.now()) {
-        // TODO: Désinscription automatique si pas de réponse avec mail !
-        //         Bonjour
-        // Sans réponse de votre part, votre place a été réattribuée.
-        // Bien cordialement
-        // A. Saly
+    for (const job of jobs.filter((j) => j.emailId === "confirm")) {
+      // Check if mail has already been sent
+      if (!checkJob(event.id, job.userEmail, "expired")) {
+        // Check if job date + MAX_DAYS_TO_CONFIRM is today or before (i.e. not yet confirmed)
+        const jobTime = (job.executedDate as Date).getTime();
+        let maxTime = jobTime + MAX_DAYS_TO_CONFIRM * 24 * 60 * 60 * 1000;
+        // Potential bug: This is taking the exact time into account, not just the date (i.e. if the job was executed at 11:59 PM, it will be deleted at 12:00 AM)
+        maxTime -= 2 * 60 * 60 * 1000;
+        if (maxTime <= Date.now()) {
+          console.log(
+            `[CRON] Deleting job ${job.userEmail} for event ${sheet.title}`
+          );
+          const members = await getMembers(job.eventId);
+          const member = members?.find((m) => m.email === job.userEmail);
+          if (!member || !members?.length) {
+            console.error(
+              `[CRON] Failed to find member with email ${job.userEmail}`
+            );
+          } else {
+            // Get first member on wait list
+            const [firstMemberOnWaitList] = sortWaitList(
+              members.filter((m) => m.onWaitList)
+            );
+            if (firstMemberOnWaitList)
+              // Remove it from wait list
+              await updateCellValue(
+                event.id,
+                `E${firstMemberOnWaitList.uid}`,
+                "FALSE"
+              ).catch((err) => console.error(err));
+            // Remove row in sheets
+            console.log(
+              `[DELETE] Removing row ${member.uid} in sheet ${sheet.sheetId}`
+            );
+            await deleteRow(sheet.sheetId!, member.uid).catch((err) =>
+              console.error(err)
+            );
+            // Send wait list alert to first member on wait list
+            if (firstMemberOnWaitList)
+              await sendWaitListAlert(firstMemberOnWaitList, event);
+            await sendEventExpired(member, event);
+            // TODO: Remove expired jobs from database
+            // TODO: Avoid putting expired jobs in database
+          }
+        }
       }
     }
   }
