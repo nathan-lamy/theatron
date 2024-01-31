@@ -10,12 +10,14 @@ import { checkJob, insertJob } from "./database";
 export let transporter: nodemailer.Transporter;
 export let MAX_DAYS_TO_CONFIRM: number;
 export let SMTP_USER: string;
+export let CRON_HOUR: string;
 
 export async function boot() {
   const settings = await getMailSettings();
   if (!settings) throw new Error("Missing mail settings");
   MAX_DAYS_TO_CONFIRM = settings.maxDaysToConfirm;
   SMTP_USER = settings.user;
+  CRON_HOUR = settings.jobTime.replace("h", "").replace(/ /g, "");
   const { host, user, pass } = settings;
   transporter = nodemailer.createTransport({
     host,

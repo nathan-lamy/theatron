@@ -1,10 +1,15 @@
+import { Cron } from "croner";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 
 import { boot } from "../services/cron";
-import { boot as bootMail, sendWaitListAlert } from "../services/mail";
+import {
+  CRON_HOUR,
+  boot as bootMail,
+  sendWaitListAlert,
+} from "../services/mail";
 import {
   boot as bootGoogleSheetsApi,
   EventInfo,
@@ -21,12 +26,16 @@ import {
 import { auth, validateRequest } from "../middlewares/auth";
 
 // Start services
+let job: Cron;
 (async () => {
   await bootGoogleSheetsApi();
   await bootMail();
 
-  // TODO: Cron job every day at 6:00 AM (change time in env variables)
-  boot();
+  job = Cron(`0 ${CRON_HOUR} * * *`, { timezone: "Europe/Paris" }, () =>
+    boot()
+      .catch(console.error)
+      .then(() => console.log("[CRON] Job terminated successfully"))
+  );
 })();
 
 // Start app

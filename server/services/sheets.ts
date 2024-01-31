@@ -149,7 +149,7 @@ export const getReminders = async () => {
 export const getMailSettings = async () => {
   const sheetData = await getSheetValue(
     Bun.env.SETTINGS_SHEET_NAME!,
-    "B22:B26"
+    "B22:B27"
   );
   if (sheetData) {
     return {
@@ -157,6 +157,7 @@ export const getMailSettings = async () => {
       pass: sheetData[1][0],
       host: sheetData[2][0],
       maxDaysToConfirm: parseInt(sheetData[4][0]),
+      jobTime: sheetData[5][0],
     };
   }
 };
