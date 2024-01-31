@@ -156,8 +156,10 @@ export const getMailSettings = async () => {
       user: sheetData[0][0],
       pass: sheetData[1][0],
       host: sheetData[2][0],
-      maxDaysToConfirm: parseInt(sheetData[4][0]),
-      jobTime: sheetData[5][0],
+      maxDaysToConfirm: parseInt(
+        sheetData[4][0].replace(/ /g, "").replace("j", "")
+      ),
+      jobTime: sheetData[5][0].replace(/ /g, "").replace("h", ""),
     };
   }
 };

@@ -17,7 +17,7 @@ export async function boot() {
   if (!settings) throw new Error("Missing mail settings");
   MAX_DAYS_TO_CONFIRM = settings.maxDaysToConfirm;
   SMTP_USER = settings.user;
-  CRON_HOUR = settings.jobTime.replace("h", "").replace(/ /g, "");
+  CRON_HOUR = settings.jobTime;
   const { host, user, pass } = settings;
   transporter = nodemailer.createTransport({
     host,
