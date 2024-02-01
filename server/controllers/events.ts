@@ -12,7 +12,7 @@ const events = new Elysia()
     {
       query: t.Object({
         token: t.String({ minLength: 40, maxLength: 40 }),
-        email: t.String({ format: "email" }),
+        email: t.String({ format: "email", default: "saly.adrien@ac-nice.fr" }),
       }),
       // Authenticate user and retrieve event informations
       beforeHandle: async ({
