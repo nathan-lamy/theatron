@@ -72,7 +72,7 @@ const route = app
       const [firstMemberOnWaitList] = sortWaitList(
         members.filter((m) => m.onWaitList)
       );
-      if (firstMemberOnWaitList)
+      if (firstMemberOnWaitList && !member.onWaitList)
         // Remove it from wait list
         await updateCellValue(
           event.id,
@@ -90,7 +90,7 @@ const route = app
       });
       // TODO: Send email to admin
       // Send wait list alert to first member on wait list
-      if (firstMemberOnWaitList)
+      if (firstMemberOnWaitList && !member.onWaitList)
         await sendWaitListAlert(firstMemberOnWaitList, event);
       return json({ success: true });
     }
