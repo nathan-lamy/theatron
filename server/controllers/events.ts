@@ -1,10 +1,12 @@
+import { Event } from "@/models/event";
+import { User } from "@/models/user";
 import { eventsRepository } from "@/repositories/events";
 import { usersRepository } from "@/repositories/users";
 import { Elysia, t } from "elysia";
 
 const events = new Elysia()
-  .state("user", {})
-  .state("event", {})
+  .state("user", {} as User)
+  .state("event", {} as Event)
   .group(
     "/events/:id",
     {
@@ -38,13 +40,47 @@ const events = new Elysia()
     (app) =>
       app
         // POST : Confirm event registration
-        .post("/", ({ store }) => {
-          store.user;
+        .post("/", async ({ store: { user, event }, set }) => {
+          // Check if user has already confirmed registration or is on wait list
+          if (user.hasConfirmedRegistration(event)) return { success: true };
+          if (user.isOnWaitList(event)) {
+            set.status = 401;
+            return { error: "ON_WAIT_LIST" };
+          }
+
+          // Update user's registration status
+          await user.confirmRegistration(event);
+          return { success: true };
         })
         // DELETE : Cancel event registration
-        .delete("/", () => {}, { body: t.Object({ reason: t.String() }) })
+        .delete(
+          "/",
+          async ({ store: { user, event } }) => {
+            // Update user's registration status
+            await user.cancelRegistration(event);
+
+            // Allow first member on wait list to register (if the user was not on wait list)
+            if (!user.isOnWaitList(event)) {
+              const [firstOnWaitList] = await event.getWaitList();
+              if (firstOnWaitList) {
+                await event.removeMemberFromWaitList(firstOnWaitList);
+                await firstOnWaitList.sendConfirmationEmail(event);
+              }
+            }
+
+            return { success: true };
+          },
+          {
+            body: t.Object({ reason: t.String() }),
+          }
+        )
         // GET : Retrieve member and event info
-        .get("/", () => {})
+        .get("/", ({ store: { user, event } }) => {
+          return {
+            user: user.serialize(),
+            event: event.serialize(),
+          };
+        })
   );
 
 export { events };
