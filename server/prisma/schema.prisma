@@ -12,8 +12,7 @@ datasource db {
 
 model User {
   id            Int                @id @default(autoincrement())
-  firstName     String
-  lastName      String
+  name          String
   email         String             @unique
   class         String
   registrations UserRegistration[]
@@ -37,7 +36,7 @@ model UserRegistration {
   userId     Int
   date       DateTime @default(now())
   priority   Int
-  confirmed  Boolean
-  waitListed Boolean
-  cancelled  Boolean
+  confirmed  Boolean  @default(false)
+  waitListed Boolean  @default(true)
+  cancelled  Boolean  @default(false)
 }
