@@ -11,7 +11,7 @@ class UsersRepository {
     return [];
   }
 
-  public async getUser(eventId: string, email: string) {
+  public async getUserRegistration(eventId: string, email: string) {
     return {};
   }
 }

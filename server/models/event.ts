@@ -1,19 +1,10 @@
-import { User } from "./user";
+import { Event } from "@prisma/client";
 
-export class Event {
-  public async confirmRegistration(event: Event) {
-    throw new Error("Method not implemented.");
-  }
-
-  public async getWaitList(): Promise<User[]> {
-    throw new Error("Method not implemented.");
-  }
-
-  public async removeMemberFromWaitList(firstOnWaitList: User) {
-    throw new Error("Method not implemented.");
-  }
-
-  public serialize() {
-    throw new Error("Method not implemented.");
-  }
-}
+export const event = {
+  async getWaitList(eventId: number) {
+    return [];
+  },
+  serialize(event: Event) {
+    return {};
+  },
+};

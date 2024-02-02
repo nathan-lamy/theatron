@@ -30,13 +30,13 @@ model Event {
 }
 
 model UserRegistration {
-  id           Int      @id @default(autoincrement())
-  user         User     @relation(fields: [userId], references: [id])
-  event        Event?   @relation(fields: [eventId], references: [id])
-  eventId      Int?
-  userId       Int
-  registeredAt DateTime
-  priority     Int
-  hasConfirmed Boolean
-  isOnWaitList Boolean
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id])
+  eventId    Int
+  userId     Int
+  date       DateTime @default(now())
+  priority   Int
+  confirmed  Boolean
+  waitListed Boolean
 }
