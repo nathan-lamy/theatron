@@ -1,95 +1,100 @@
 import { eventsRepository } from "@/repositories/events";
 import { usersRepository } from "@/repositories/users";
 import { prisma } from "@/src/setup";
-import { Event, UserRegistration } from "@prisma/client";
+import { UserRegistration } from "@prisma/client";
 import { Elysia, t } from "elysia";
 
-const events = new Elysia()
-  .state("registration", {} as UserRegistration)
-  .state("event", {} as Event)
-  .group(
-    "/events/:id",
-    {
-      query: t.Object({
-        token: t.String({ minLength: 40, maxLength: 40 }),
-        email: t.String({ format: "email", default: "saly.adrien@ac-nice.fr" }),
-      }),
-      // Authenticate user and retrieve event informations
-      beforeHandle: async ({
-        params: { id: eventId },
-        query: { email, token },
-        set,
-        store,
-      }) => {
-        // Verify the user token
-        if (!usersRepository.verifyToken(token, { eventId, email })) {
-          set.status = 403;
-          return { error: "Invalid token" };
-        }
-        // Retrieve user registration and event informations
-        const registration = await usersRepository.getUserRegistration(
-          email,
-          eventId
-        );
-        const event = await eventsRepository.getEvent(eventId);
-        if (!registration || !event) {
-          set.status = 404;
-          return { error: "Unknown event" };
-        }
-        // Add data to request store
-        Object.assign(store, { registration, event });
-      },
+const events = new Elysia().state("registration", {} as UserRegistration).group(
+  "/events/:id",
+  {
+    query: t.Object({
+      token: t.String({ minLength: 40, maxLength: 40 }),
+      email: t.String({ format: "email", default: "saly.adrien@ac-nice.fr" }),
+    }),
+    // Authenticate user and retrieve event informations
+    beforeHandle: async ({
+      params: { id: eventId },
+      query: { email, token },
+      set,
+      store,
+    }) => {
+      // Verify the user token
+      if (!usersRepository.verifyToken(token, { eventId, email })) {
+        set.status = 403;
+        return { error: "INVALID_TOKEN" };
+      }
+      // Retrieve user registration and event informations
+      const parsedEventId = parseInt(eventId);
+      const registration = await usersRepository.getUserRegistration(
+        parsedEventId,
+        email
+      );
+      if (!registration) {
+        set.status = 404;
+        return { error: "UNKNOWN_REGISTRATION" };
+      }
+      // TODO: Implement this error in front-end & merge with the previous one (same status code, different error message)
+      if (registration.cancelled) {
+        set.status = 401;
+        return { error: "CANCELLED_REGISTRATION" };
+      }
+      // Add data to request store
+      store.registration = registration;
     },
-    (app) =>
-      app
-        // POST : Confirm event registration
-        .post("/", async ({ store: { registration, event }, set }) => {
-          // Check if user registration is already confirmed or is on wait list
-          if (registration.confirmed) return { success: true };
-          if (registration.waitListed) {
-            set.status = 401;
-            return { error: "ON_WAIT_LIST" };
-          }
+  },
+  (app) =>
+    app
+      // POST : Confirm event registration
+      .post("/", async ({ store: { registration }, set }) => {
+        // Check if user registration is already confirmed or is on wait list
+        if (registration.confirmed) return { success: true };
+        if (registration.waitListed) {
+          set.status = 401;
+          return { error: "ON_WAIT_LIST" };
+        }
 
+        // Update user's registration status
+        await prisma.userRegistration.confirm(registration);
+        return { success: true };
+      })
+      // DELETE : Cancel event registration
+      .delete(
+        "/",
+        async ({ store: { registration } }) => {
           // Update user's registration status
-          await prisma.userRegistration.confirm(registration);
-          return { success: true };
-        })
-        // DELETE : Cancel event registration
-        .delete(
-          "/",
-          async ({ store: { registration, event } }) => {
-            // Update user's registration status
-            await prisma.userRegistration.cancel(registration);
+          await prisma.userRegistration.cancel(registration);
 
-            // Allow first member on wait list to register (if the user was not on wait list)
-            if (!registration.waitListed) {
-              const [firstOnWaitList] = await prisma.event.getWaitList(
-                registration.eventId
+          // Allow first member on wait list to register (if the user was not on wait list)
+          if (!registration.waitListed) {
+            const [firstOnWaitList] = await prisma.event.getWaitList(
+              registration.eventId
+            );
+            if (firstOnWaitList) {
+              // Give the first member on wait list the opportunity to register
+              await prisma.userRegistration.removeWaitList(firstOnWaitList);
+              await prisma.userRegistration.sendConfirmationEmail(
+                firstOnWaitList
               );
-              if (firstOnWaitList) {
-                await prisma.userRegistration.cancelWaitList(registration);
-                await prisma.userRegistration.sendConfirmationEmail(
-                  firstOnWaitList
-                );
-              }
             }
-
-            return { success: true };
-          },
-          {
-            body: t.Object({ reason: t.String() }),
           }
-        )
-        // GET : Retrieve member and event info
-        .get("/", ({ store: { registration, event } }) => {
-          // TODO: Load user
-          return {
-            // user: user.serialize(),
-            registration: prisma.userRegistration.serialize(registration),
-            event: prisma.event.serialize(event),
-          };
-        })
-  );
+
+          return { success: true };
+        },
+        {
+          body: t.Object({ reason: t.String() }),
+        }
+      )
+      // GET : Retrieve member and event info
+      // TODO: Cache this request
+      .get("/", async ({ store: { registration } }) => {
+        const user = await usersRepository.getUserById(registration.userId);
+        const event = await eventsRepository.getEventById(registration.eventId);
+        return {
+          user: prisma.user.serialize(user!),
+          registration: prisma.userRegistration.serialize(registration),
+          event: prisma.event.serialize(event!),
+        };
+      })
+);
 
 export { events };

@@ -39,4 +39,5 @@ model UserRegistration {
   priority   Int
   confirmed  Boolean
   waitListed Boolean
+  cancelled  Boolean
 }

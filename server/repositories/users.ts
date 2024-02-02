@@ -1,4 +1,15 @@
+import { prisma } from "@/src/setup";
+
 class UsersRepository {
+  // Retrieve user
+  public async getUserById(id: number) {
+    return prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
+
   // TODO:
   public verifyToken(
     token: string,
@@ -7,12 +18,16 @@ class UsersRepository {
     return true;
   }
 
-  public async getUsers(eventId: string) {
-    return [];
-  }
-
-  public async getUserRegistration(eventId: string, email: string) {
-    return {};
+  // Retrieve user registration (used in server/controllers/events.ts middleware)
+  public async getUserRegistration(eventId: number, email: string) {
+    return prisma.userRegistration.findFirst({
+      where: {
+        eventId: eventId,
+        user: {
+          email: email,
+        },
+      },
+    });
   }
 }
 
