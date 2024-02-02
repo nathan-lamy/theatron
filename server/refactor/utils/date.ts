@@ -1,5 +1,5 @@
-import { MAX_DAYS_TO_CONFIRM } from "../services/mail";
-import { REMINDERS } from "../services/sheets";
+import { MAX_DAYS_TO_CONFIRM } from "../old/services/mail";
+import { REMINDERS } from "../old/services/sheets";
 
 // Calculate the date in french format (DD/MM/YYYY) in x days from now
 export function calculateConfirmBeforeDate() {

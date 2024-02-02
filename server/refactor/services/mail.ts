@@ -1,10 +1,10 @@
 import { EventInfo, Member, Reminder, getMailSettings } from "./sheets";
 import nodemailer from "nodemailer";
-import { generateShortLink } from "../utils/link";
+import { generateShortLink } from "../../utils/link";
 import {
   calculateConfirmBeforeDate,
   getRelativeTimeInFrench,
-} from "../utils/date";
+} from "../../utils/date";
 import { checkJob, insertJob } from "./database";
 
 export let transporter: nodemailer.Transporter;

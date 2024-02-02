@@ -1,12 +1,12 @@
 import { Cron } from "croner";
 import { Hono } from "hono";
 
-import { boot } from "../services/cron";
+import { boot } from "./services/cron";
 import {
   CRON_HOUR,
   boot as bootMail,
   sendWaitListAlert,
-} from "../services/mail";
+} from "./services/mail";
 import {
   boot as bootGoogleSheetsApi,
   EventInfo,
@@ -14,8 +14,8 @@ import {
   deleteRow,
   getSheetId,
   updateCellValue,
-} from "../services/sheets";
-import { sortWaitList } from "../services/queue";
+} from "./services/sheets";
+import { sortWaitList } from "./services/queue";
 import {
   calculateConfirmBeforeFromEventDate,
   convertDateStringToDate,

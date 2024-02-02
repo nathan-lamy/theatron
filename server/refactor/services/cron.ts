@@ -16,7 +16,7 @@ import {
   listSheets,
   updateCellValue,
 } from "./sheets";
-import { convertDateStringToDate, parseReminderDate } from "../utils/date";
+import { convertDateStringToDate, parseReminderDate } from "../../utils/date";
 import { checkJob, getJobsByEventId } from "./database";
 import { sortWaitList } from "./queue";
 
