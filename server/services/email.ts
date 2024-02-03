@@ -12,7 +12,7 @@ const email = new Email({
 
 email
   .send({
-    template: "on-wait-list",
+    template: "event-reminder",
     message: {
       to: "elon@spacex.com",
     },

@@ -1,0 +1,11 @@
+include ../template.pug 
+ 
++template(
+    "Inscription au théâtre 🎭",
+    "Vous êtes inscrit au spectacle suivant :",
+    "SE DÉSINSCRIRE",
+    "Vous continuerez à recevoir régulièrement des mails, jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement."
+)
+    | Pour rappel, la représentation aura lieu dans 
+    b #{event.relativeDate || "deux semaines"}. 
+    |Je vous remercie par avance de bien vouloir m'informer d'un éventuel désistement. 
