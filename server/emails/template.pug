@@ -17,14 +17,13 @@ mixin template(title, description, button, footer)
                 if block
                   +text
                     block
+                if (button)
                   br
-                +button-container(button)
-                +text
-                  | Ou copiez-collez ce lien dans votre navigateur :
-                +text
-                  a(href=link target='_blank' style='color: #067df7; text-decoration: none')
-                    | #{link}
-                br
-                +footer
-                  if footer
-                    | #{footer}
+                  +button-container(button)
+                  +text
+                    | Ou copiez-collez ce lien dans votre navigateur :
+                  +text
+                    a(href=link target='_blank' style='color: #067df7; text-decoration: none')
+                      | #{link}
+                  br
+                +footer(footer)

@@ -12,7 +12,7 @@ const email = new Email({
 
 email
   .send({
-    template: "confirm-registration",
+    template: "confirmation-expired",
     message: {
       to: "elon@spacex.com",
     },

@@ -36,10 +36,10 @@ mixin button(href, text)
             | #{text}
 
 
-mixin footer()
+mixin footer(text)
     hr(style='border: none;border-top: 1px solid #eaeaea;margin: 26px 0;width: 100%;')
     p(style="color: #666666;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI','Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans','Droid Sans', 'Helvetica Neue', sans-serif;font-size: 12px;line-height: 24px;")
-        if block
-            block 
+        if text
+            | #{text}
             br
         | Bien cordialement, A. Saly
