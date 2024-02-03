@@ -12,7 +12,7 @@ const email = new Email({
 
 email
   .send({
-    template: "confirmation-expired",
+    template: "on-wait-list",
     message: {
       to: "elon@spacex.com",
     },
