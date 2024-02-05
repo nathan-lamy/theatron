@@ -66,21 +66,6 @@ export const events = new Elysia()
           async ({ store: { registration } }) => {
             // Update user's registration status
             await prisma.userRegistration.cancel(registration);
-
-            // Allow first member on wait list to register (if the user was not on wait list)
-            if (!registration.waitListed) {
-              const [firstOnWaitList] = await prisma.event.getWaitList(
-                registration.eventId
-              );
-              if (firstOnWaitList) {
-                // Give the first member on wait list the opportunity to register
-                await prisma.userRegistration.removeWaitList(firstOnWaitList);
-                await prisma.userRegistration.sendConfirmationEmail(
-                  firstOnWaitList
-                );
-              }
-            }
-
             return { success: true };
           },
           {

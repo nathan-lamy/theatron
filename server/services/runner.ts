@@ -30,6 +30,7 @@ export default async function runner() {
               registration,
             };
             job.run(payload);
+            // TODO: Handle the job result (and errors)
           }
         }
       }

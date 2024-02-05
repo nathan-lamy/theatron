@@ -2,9 +2,8 @@
 // When to trigger : 2 months (or less if the event is sooner) before the event
 // Time to confirm : 1 month before the event
 
-import { usersRepository } from "@/repositories/users";
-import { sendEmail } from "@/services/email";
 import type { JobPayload } from "@/shared/jobs";
+import { prisma } from "@/src/setup";
 import type { UserRegistration } from "@prisma/client";
 
 // The number of days before the event to send the email
@@ -35,23 +34,7 @@ const check = (registration: UserRegistration) => {
 // Run the job
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running confirmation job for user #", registration.userId);
-
-  if (!registration.confirmBefore) {
-    // Set the confirm before date to 4 weeks before the event
-    const confirmBefore = new Date(event.date);
-    confirmBefore.setDate(confirmBefore.getDate() - 4 * 7);
-    // Save the confirm before date
-    await usersRepository.setConfirmBeforeDate(registration, confirmBefore);
-    registration.confirmBefore = confirmBefore;
-  }
-
-  // Send the confirmation email
-  await sendEmail("confirm-registration", {
-    event,
-    registration,
-    includeLink: true,
-  });
-  console.log("🦊 Confirmation email sent to user #", registration.userId);
+  await prisma.userRegistration.sendConfirmationEmail(registration);
 }
 
 export default { daysBefore, check, run };

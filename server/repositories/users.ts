@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/src/setup";
-import { Event, User, UserRegistration } from "@prisma/client";
+import type { Event, User } from "@prisma/client";
 
 interface UserData {
   email: string;
@@ -79,21 +79,6 @@ class UsersRepository {
         user: {
           email: email,
         },
-      },
-    });
-  }
-
-  // Update registration confirm before date
-  public async setConfirmBeforeDate(
-    registration: UserRegistration,
-    date: Date
-  ) {
-    await prisma.userRegistration.update({
-      where: {
-        id: registration.id,
-      },
-      data: {
-        confirmBefore: date,
       },
     });
   }
