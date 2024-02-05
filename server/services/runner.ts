@@ -1,20 +1,19 @@
 import confirmation from "@/jobs/confirmation";
 import reminder from "@/jobs/reminder";
-import today from "@/jobs/today";
-import tomorrow from "@/jobs/tomorrow";
 import waitList from "@/jobs/wait-list";
 import { eventsRepository } from "@/repositories/events";
+import { getDaysDiff } from "@/shared/utils";
 
-const jobs = [confirmation, waitList, reminder, tomorrow, today];
+const jobs = [confirmation, waitList, reminder];
 
 export default async function runner() {
   // Retrieve all closed events
   const events = await eventsRepository.getAll({ includesRegistrations: true });
-  for (const event of events.filter((event) => event.closed)) {
+  for (const event of events.filter(
+    (event) => event.closed && event.date >= new Date()
+  )) {
     // Calculate number of days before the event
-    const daysBefore = Math.floor(
-      (event.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const daysBefore = getDaysDiff(event.date);
     // Loop through all the jobs (filter the ones that already ran)
     // and check if they should run
     for (const job of jobs) {
@@ -23,7 +22,7 @@ export default async function runner() {
         for (const registration of event.registrations.filter(
           (registration) => !registration.cancelled
         )) {
-          if (job.check(registration)) {
+          if (job.check(registration, event)) {
             // Run the job
             const payload = {
               event,

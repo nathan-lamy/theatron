@@ -3,6 +3,7 @@
 // Time to confirm : 1 month before the event
 
 import type { JobPayload } from "@/shared/jobs";
+import { getDaysDiff } from "@/shared/utils";
 import { prisma } from "@/src/setup";
 import type { UserRegistration } from "@prisma/client";
 
@@ -19,13 +20,10 @@ const check = (registration: UserRegistration) => {
   // Wether the registration hasn't any confirm before date yet
   // Or the day difference is a round number of weeks between 1 and 4
   if (registration.confirmBefore && registration.confirmBefore <= new Date()) {
-    const today = new Date();
-    const diff = registration.confirmBefore.getTime() - today.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const days = getDaysDiff(registration.confirmBefore);
     // The days difference must be equal to a round number of weeks
     if (days % 7 !== 0) return false;
-    // Take the absolute value of the days difference
-    const weeks = Math.abs(days) / 7;
+    const weeks = days / 7;
     return weeks >= 1 && weeks <= 4;
   }
   return true;
