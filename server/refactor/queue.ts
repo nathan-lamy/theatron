@@ -1,5 +1,3 @@
-import { Member } from "./sheets";
-
 export const sortWaitList = (members: Member[]) =>
   members.sort((a, b) => {
     // Trie par priorité, puis par uid si les priorités sont égales

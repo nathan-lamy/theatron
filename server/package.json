@@ -6,13 +6,8 @@
     "test": "bun test"
   },
   "dependencies": {
-    "croner": "^8.0.0",
     "elysia": "^0.8.15",
     "@elysiajs/cors": "^0.8.0",
-    "hono": "^3.10.1",
-    "@hono/zod-validator": "^0.1.11",
-    "googleapis": "^131.0.0",
-    "@google-cloud/local-auth": "^3.0.1",
     "nodemailer": "^6.9.8",
     "email-templates": "^11.1.1",
     "pug": "^3.0.2",
