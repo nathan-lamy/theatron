@@ -1,5 +1,5 @@
 import { usersRepository } from "@/repositories/users";
-import { Event, User } from "@prisma/client";
+import type { Event, User, UserRegistration } from "@prisma/client";
 import Email from "email-templates";
 import nodemailer from "nodemailer";
 
@@ -27,16 +27,20 @@ export default async function sendEmail(
   {
     user,
     event,
+    registration,
     additionalData,
   }: {
-    user: number | User;
+    user?: User;
     event: Event;
+    registration?: UserRegistration;
     additionalData?: Record<string, any>;
   }
 ) {
-  if (typeof user === "number") {
-    user = (await usersRepository.getUserById(user))!;
+  // If the user is not provided, get it from the registration
+  if (!user) {
+    user = (await usersRepository.getUserById(registration!.userId))!;
   }
+  // Send the email
   await email.send({
     template,
     message: {
@@ -45,10 +49,18 @@ export default async function sendEmail(
     locals: {
       user,
       event,
+      registration,
       ...additionalData,
-      functions: {},
+      functions: { toDateString },
     },
   });
 }
 
-// TODO: Confirm before date
+function toDateString(date: Date) {
+  // Format the date to DD/MM/YYYY
+  return date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}

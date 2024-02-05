@@ -7,5 +7,5 @@ include ../template.pug
     "Une fois votre inscription validée, vous recevrez régulièrement un mail, jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement."
 )
     | Veuillez 
-    b confirmer votre inscription avant le #{event.confirmBeforeDate}
+    b confirmer votre inscription avant le #{functions.toDateString(registration.confirmBefore)}
     | . En l&apos;absence de confirmation, votre place sera attribu&eacute;e &agrave; quelqu&apos;un d&apos;autre.
