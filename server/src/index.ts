@@ -1,5 +1,5 @@
 import runner from "@/services/runner";
-import app from "./app";
+import { app } from "./app";
 
 // Connect to the database
 import "./setup";

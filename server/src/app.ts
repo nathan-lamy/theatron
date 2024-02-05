@@ -1,7 +1,7 @@
 import cors from "@elysiajs/cors";
 import { Elysia } from "elysia";
-import { events } from "@/controllers/events";
+// NOTE: Relative import used for type resolution (frontend/backend compatibility)
+import { events } from "../controllers/events";
 
-const app = new Elysia().use(cors()).use(events);
-
-export default app;
+export const app = new Elysia().use(cors()).use(events);
+export type App = typeof app;

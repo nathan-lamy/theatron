@@ -83,6 +83,7 @@ export const events = new Elysia()
             user: prisma.user.serialize(user!),
             registration: prisma.userRegistration.serialize(registration),
             event: prisma.event.serialize(event!),
+            success: true,
           };
         })
   );

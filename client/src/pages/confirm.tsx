@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -18,14 +15,10 @@ import Footer from "@/components/Footer";
 import { client } from "@/lib/api";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
-import type { EventPayload } from "@server/index";
-
-interface ExtendedEventPayload extends EventPayload {
-  error?: { title: string; message: string };
-}
 
 export default function ConfirmPage() {
-  const withSuspense = useLoaderData() as () => ExtendedEventPayload;
+  // TODO: useLoaderData() type
+  const withSuspense = useLoaderData() as () => any;
   const { event, user, confirmBeforeDate, error } = withSuspense();
 
   const navigate = useNavigate();
@@ -47,31 +40,25 @@ export default function ConfirmPage() {
 
   async function confirm() {
     setIsLoading(true);
-    const res = await client.events[":id"]
-      .$post({
-        param: { id: event.id },
-        query: { token, email: user.email },
-      })
-      .catch((err) => err);
-    if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
-    else if (res.status === 401) toError(ERRORS.ON_WAIT_LIST);
-    else if (res.status === 403) toError(ERRORS.INVALID_LINK);
-    else if (res.status === 404) toError(ERRORS.EXPIRED_LINK);
+    const { data, error } = await client.events[event.id][""].post({
+      $query: { token, email: user.email },
+    });
+    if (data?.success) toSuccess(SUCCESS.REGISTRATION_CONFIRMED);
+    else if (error?.status === 401) toError(ERRORS.ON_WAIT_LIST);
+    else if (error?.status === 403) toError(ERRORS.INVALID_LINK);
+    else if (error?.status === 404) toError(ERRORS.EXPIRED_LINK);
     else toError();
   }
 
   async function cancel() {
     setIsLoading(true);
-    const res = await client.events[":id"]
-      .$delete({
-        param: { id: event.id },
-        json: { reason },
-        query: { token, email: user.email },
-      })
-      .catch((err) => err);
-    if (res.status === 200) toSuccess(SUCCESS.REGISTRATION_CANCELED);
-    else if (res.status === 403) toError(ERRORS.INVALID_LINK);
-    else if (res.status === 404) toError(ERRORS.EXPIRED_LINK);
+    const { data, error } = await client.events[event.id][""].delete({
+      reason,
+      $query: { token, email: user.email },
+    });
+    if (data?.success) toSuccess(SUCCESS.REGISTRATION_CANCELED);
+    else if (error?.status === 403) toError(ERRORS.INVALID_LINK);
+    else if (error?.status === 404) toError(ERRORS.EXPIRED_LINK);
     else toError();
   }
 

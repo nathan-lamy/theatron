@@ -20,7 +20,7 @@
     "react-router-dom": "^6.21.2",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
-    "hono": "^3.10.1",
+    "@elysiajs/eden": "^0.8.1",
     "@sentry/react": "7.98.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { AppType } from "@server/index";
-import { hc } from "hono/client";
+import { edenTreaty } from "@elysiajs/eden";
+import type { App } from "@server/app";
 
-export const client = hc<AppType>(import.meta.env.VITE_API_URL);
+export const client = edenTreaty<App>(import.meta.env.VITE_API_URL!);
