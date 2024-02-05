@@ -34,6 +34,7 @@ model UserRegistration {
   event         Event     @relation(fields: [eventId], references: [id])
   eventId       Int
   userId        Int
+  // The registration date
   date          DateTime  @default(now())
   priority      Int
   confirmBefore DateTime?
