@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
 import Email from "email-templates";
+import nodemailer from "nodemailer";
 
 const email = new Email({
   preview: {
@@ -8,6 +9,15 @@ const email = new Email({
       wait: false,
     },
   },
+  transport: nodemailer.createTransport({
+    host: "smtp.forwardemail.net",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "you@example.com",
+      pass: "****************************",
+    },
+  }),
 });
 
 email
