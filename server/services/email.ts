@@ -22,26 +22,33 @@ const email = new Email({
   }),
 });
 
-export default async function sendEmail(
+export async function sendEmail(
   template: string,
   {
     user,
     event,
     registration,
     additionalData,
+    includeLink = false,
   }: {
     user?: User;
     event: Event;
     registration?: UserRegistration;
     additionalData?: Record<string, any>;
+    includeLink?: boolean;
   }
 ) {
   // If the user is not provided, get it from the registration
   if (!user) {
     user = (await usersRepository.getUserById(registration!.userId))!;
   }
+  // Generate the confirmation link
+  if (includeLink) {
+    const link = usersRepository.generateSignedLink(user, event);
+    additionalData = { ...additionalData, link };
+  }
   // Send the email
-  await email.send({
+  return email.send({
     template,
     message: {
       to: user.email,

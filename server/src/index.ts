@@ -14,3 +14,5 @@ app.listen(3333, () =>
     `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
   )
 );
+
+import "@/services/email";
