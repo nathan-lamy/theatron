@@ -24,19 +24,20 @@ model Event {
   date          DateTime
   details       String
   capacity      Int
-  isFull        Boolean
+  closed        Boolean            @default(false)
   registrations UserRegistration[]
 }
 
 model UserRegistration {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
-  event      Event    @relation(fields: [eventId], references: [id])
-  eventId    Int
-  userId     Int
-  date       DateTime @default(now())
-  priority   Int
-  confirmed  Boolean  @default(false)
-  waitListed Boolean  @default(true)
-  cancelled  Boolean  @default(false)
+  id            Int       @id @default(autoincrement())
+  user          User      @relation(fields: [userId], references: [id])
+  event         Event     @relation(fields: [eventId], references: [id])
+  eventId       Int
+  userId        Int
+  date          DateTime  @default(now())
+  priority      Int
+  confirmBefore DateTime?
+  confirmed     Boolean   @default(false)
+  waitListed    Boolean   @default(true)
+  cancelled     Boolean   @default(false)
 }

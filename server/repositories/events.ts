@@ -9,6 +9,17 @@ class EventsRepository {
       },
     });
   }
+
+  // Retrieve all events
+  public async getAll(
+    { includesRegistrations } = { includesRegistrations: false }
+  ) {
+    return prisma.event.findMany({
+      include: {
+        registrations: includesRegistrations,
+      },
+    });
+  }
 }
 
 export const eventsRepository = new EventsRepository();

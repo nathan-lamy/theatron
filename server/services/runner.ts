@@ -1,15 +1,38 @@
-// Job #1 : Send email to registered users to confirm their attendance
-// When to trigger : 2 months (or less if the event is sooner) before the event + the registration must be closed
-// Time to confirm : 1 month before the event
+import confirmation from "@/jobs/confirmation";
+import reminder from "@/jobs/reminder";
+import today from "@/jobs/today";
+import tomorrow from "@/jobs/tomorrow";
+import waitList from "@/jobs/wait-list";
+import { eventsRepository } from "@/repositories/events";
 
-// Job #2 : Send email to registered users to remind them of the event
-// When to trigger : From 1 month before the event, every week until the event
+const jobs = [confirmation, waitList, reminder, tomorrow, today];
 
-// Job #3 : Send email to registered users one day before the event
-// When to trigger : 1 day before the event
-
-// Job #4 : Send email to registered users the day of the event
-// When to trigger : The day of the event
-
-// Job #5 : Send email to users who didn't confirm their attendance
-// When to trigger : 1 month before the event
+export default async function runner() {
+  // Retrieve all closed events
+  const events = await eventsRepository.getAll({ includesRegistrations: true });
+  for (const event of events.filter((event) => event.closed)) {
+    // Calculate number of days before the event
+    const daysBefore = Math.floor(
+      (event.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+    // Loop through all the jobs (filter the ones that already ran)
+    // and check if they should run
+    for (const job of jobs) {
+      if (daysBefore <= job.daysBefore) {
+        // Loop through all the registrations and check if the job should run
+        for (const registration of event.registrations.filter(
+          (registration) => !registration.cancelled
+        )) {
+          if (job.check(registration)) {
+            // Run the job
+            const payload = {
+              event,
+              registration,
+            };
+            job.run(payload);
+          }
+        }
+      }
+    }
+  }
+}
