@@ -20,6 +20,15 @@ export default async function runner() {
         const occurrences = job.timer(event, registration);
         const passedCheck = occurrences && job.check(registration);
         if (occurrences && passedCheck) {
+          // Close the event if it's not already closed
+          if (!event.closed) {
+            console.log(
+              `🦊 Closing event ${event.name} before running job ${job.name}`
+            );
+            await eventsRepository.close(event);
+            event.closed = true;
+          }
+          // Check if the job already ran for the user
           const jobQuery = {
             eventId: event.id,
             userId: registration.userId,

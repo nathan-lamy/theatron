@@ -26,7 +26,8 @@ export const userRegistration = {
     // Allow first member on wait list to register (if the user was not on wait list)
     if (!registration.waitListed) {
       const [firstOnWaitList] = await prisma.event.getWaitList(
-        registration.eventId
+        registration.eventId,
+        1
       );
       if (firstOnWaitList) {
         // Give the first member on wait list the opportunity to register
