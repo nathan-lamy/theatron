@@ -26,4 +26,4 @@ async function run({ event, registration }: JobPayload) {
   return prisma.userRegistration.sendConfirmationEmail(registration, event);
 }
 
-export default { timer, check, run };
+export default { timer, check, run, name: "confirmation" };

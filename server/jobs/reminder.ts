@@ -42,4 +42,4 @@ function calculateRelativeTime(daysBeforeEvent: number) {
   return "aujourd'hui";
 }
 
-export default { timer, check, run };
+export default { timer, check, run, name: "reminder" };

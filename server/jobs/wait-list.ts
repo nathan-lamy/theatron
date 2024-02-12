@@ -26,4 +26,4 @@ async function run({ event, registration }: JobPayload) {
   });
 }
 
-export default { timer, check, run };
+export default { timer, check, run, name: "wait-list" };
