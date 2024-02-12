@@ -24,7 +24,8 @@ class UsersRepository {
 
   // Register user
   public async register(data: UserData) {
-    const preferredEvent = await this.getTopPriorityEvent(data);
+    // Get the top priority event(s) (multiple events if some are closed)
+    const preferredEvents = await this.getTopPriorityEvent(data);
     return prisma.user.create({
       data: {
         email: data.email,
@@ -35,7 +36,7 @@ class UsersRepository {
             eventId: eventId,
             // CAUTION: The priority is 1-indexed
             priority: data.selectedEvents.indexOf(eventId) + 1,
-            waitListed: preferredEvent?.id !== eventId,
+            waitListed: !preferredEvents.some((event) => event.id === eventId),
           })),
         },
       },
@@ -46,23 +47,22 @@ class UsersRepository {
   }
 
   private async getTopPriorityEvent(data: UserData) {
-    // TODO: Handle closed events
     // Retrieve events and count registrations
     const events = await eventsRepository.getAllAndCountRegistrations();
 
-    // Look for the event with the highest priority and that is not full
-    // const preferredEvents = [];
+    const preferredEvents = [];
     for (const eventId of data.selectedEvents) {
       const event = events.find((event) => event.id === eventId);
-      if (
-        event &&
-        event._count.registrations < event.capacity &&
-        // TODO: Handle closed events
-        !event.closed
-      ) {
-        return event;
+      if (event && event._count.registrations < event.capacity) {
+        // Loop through the selected events that are closed
+        // OR Look for the event with the highest priority
+        if (event.closed || preferredEvents.length < 1) {
+          preferredEvents.push(event);
+        }
       }
     }
+
+    return preferredEvents;
   }
 
   // Verify token from signed link
