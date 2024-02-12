@@ -12,6 +12,9 @@ import Error from "./pages/error";
 import Success from "./pages/success";
 
 import { withSuspense } from "./lib/suspense";
+import Register from "./pages/register";
+
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const router = createBrowserRouter([
   {
@@ -35,10 +38,16 @@ const router = createBrowserRouter([
     path: "/success",
     element: <Success />,
   },
+  {
+    path: "/register",
+    element: <Register />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider defaultTheme="light">
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
