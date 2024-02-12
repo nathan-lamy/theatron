@@ -2,7 +2,7 @@ import { prisma } from "@/src/setup";
 
 class EventsRepository {
   // Retrieve event
-  public async getEventById(id: number) {
+  public async getById(id: number) {
     return prisma.event.findUnique({
       where: {
         id: id,

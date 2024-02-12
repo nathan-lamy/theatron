@@ -1,39 +1,33 @@
 // Job : Send email to registered users to remind them of the event
-// When to trigger : From 1 month before the event, every week until the event
 
 import { sendEmail } from "@/services/email";
-import type { JobPayload } from "@/shared/jobs";
-import { getDaysDiff } from "@/shared/utils";
-import type { Event, UserRegistration } from "@prisma/client";
+import {
+  shouldRunJobByDays,
+  type JobPayload,
+  checkForCriteria,
+} from "@/shared/jobs";
 
 // The number of days before the event to send the email
 // 1 month = 4 weeks before the event
-const daysBefore = 4 * 7;
+const timer = shouldRunJobByDays([4 * 7, 3 * 7, 2 * 7, 7, 1, 0]);
 
 // Wether the job should run for a registered user or not
-const check = (registration: UserRegistration, event: Event) => {
-  if (!registration.confirmed) return false;
-  // Check if they are a multiple of 7 days before the event between 1 week and 4 weeks (included)
-  const daysBeforeEvent = getDaysDiff(event.date);
-  if (daysBeforeEvent > 4 * 7) return false;
-  if (daysBeforeEvent % 7 === 0) return true;
-  // If the event is tomorrow or today, we should send the reminder
-  if (daysBeforeEvent === 1 || daysBeforeEvent === 0) return true;
-  return false;
-};
+const check = checkForCriteria({
+  confirmed: true,
+  waitListed: false,
+});
 
 // Run the job
-async function run({ event, registration }: JobPayload) {
+async function run({ event, registration, days }: JobPayload) {
   console.log("🦊 Running reminder job for event", event);
   // Calculate the number of days before the event
-  const daysBeforeEvent = getDaysDiff(event.date);
   await sendEmail("event-reminder", {
     event,
     registration,
     includeLink: true,
     additionalData: {
-      relativeTime: calculateRelativeTime(daysBeforeEvent),
-      daysBeforeEvent,
+      relativeTime: calculateRelativeTime(days),
+      daysBeforeEvent: days,
     },
   });
 }
@@ -48,4 +42,4 @@ function calculateRelativeTime(daysBeforeEvent: number) {
   return "aujourd'hui";
 }
 
-export default { daysBefore, check, run };
+export default { timer, check, run };

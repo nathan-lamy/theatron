@@ -9,9 +9,7 @@ const jobs = [confirmation, waitList, reminder];
 export default async function runner() {
   // Retrieve all closed events
   const events = await eventsRepository.getAll({ includesRegistrations: true });
-  for (const event of events.filter(
-    (event) => event.closed && event.date >= new Date()
-  )) {
+  for (const event of events.filter((event) => event.date >= new Date())) {
     // Calculate number of days before the event
     const daysBefore = getDaysDiff(event.date);
     // Loop through all the jobs (filter the ones that already ran)

@@ -76,9 +76,7 @@ export const events = new Elysia()
         // TODO: Cache this request
         .get("/", async ({ store: { registration } }) => {
           const user = await usersRepository.getUserById(registration.userId);
-          const event = await eventsRepository.getEventById(
-            registration.eventId
-          );
+          const event = await eventsRepository.getById(registration.eventId);
           return {
             user: prisma.user.serialize(user!),
             registration: prisma.userRegistration.serialize(registration),

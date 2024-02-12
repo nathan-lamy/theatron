@@ -1,7 +1,7 @@
 import { eventsRepository } from "@/repositories/events";
 import { sendEmail } from "@/services/email";
 import { prisma } from "@/src/setup";
-import { UserRegistration } from "@prisma/client";
+import type { Event, UserRegistration } from "@prisma/client";
 
 export const userRegistration = {
   async confirm(registration: UserRegistration) {
@@ -55,9 +55,13 @@ export const userRegistration = {
       },
     });
   },
-  async sendConfirmationEmail(registration: UserRegistration) {
+  async sendConfirmationEmail(
+    registration: UserRegistration,
+    optionalEvent?: Event
+  ) {
     // Retrieve the event
-    const event = (await eventsRepository.getEventById(registration.eventId))!;
+    const event =
+      optionalEvent || (await eventsRepository.getById(registration.eventId))!;
 
     if (!registration.confirmBefore) {
       // Set the confirm before date to 4 weeks before the event

@@ -1,16 +1,20 @@
 // Job : Inform users that they are on the wait list
-// When to trigger : 2 months (or less if the event is sooner) before the event
 
 import { sendEmail } from "@/services/email";
-import type { JobPayload } from "@/shared/jobs";
-import { UserRegistration } from "@prisma/client";
+import {
+  shouldRunJobByDays,
+  type JobPayload,
+  checkForCriteria,
+} from "@/shared/jobs";
 
 // The number of days before the event to send the email
 // 2 months = 8 weeks (or less if the event is sooner)
-const daysBefore = 8 * 7;
+const timer = shouldRunJobByDays(8 * 7);
 
 // Wether the job should run for a registered user or not
-const check = (registration: UserRegistration) => registration.waitListed;
+const check = checkForCriteria({
+  waitListed: true,
+});
 
 // Run the job
 async function run({ event, registration }: JobPayload) {
@@ -22,4 +26,4 @@ async function run({ event, registration }: JobPayload) {
   });
 }
 
-export default { daysBefore, check, run };
+export default { timer, check, run };
