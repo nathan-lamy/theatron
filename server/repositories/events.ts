@@ -22,6 +22,14 @@ class EventsRepository {
     });
   }
 
+  public async getAllAndCountRegistrations() {
+    return prisma.event.findMany({
+      include: {
+        _count: { select: { registrations: true } },
+      },
+    });
+  }
+
   // Close event
   public async close(event: Event) {
     return prisma.event

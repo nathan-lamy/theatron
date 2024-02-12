@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/src/setup";
 import type { Event, User } from "@prisma/client";
+import { eventsRepository } from "./events";
 
 interface UserData {
   email: string;
@@ -23,6 +24,7 @@ class UsersRepository {
 
   // Register user
   public async register(data: UserData) {
+    const preferredEvent = await this.getTopPriorityEvent(data);
     return prisma.user.create({
       data: {
         email: data.email,
@@ -33,8 +35,7 @@ class UsersRepository {
             eventId: eventId,
             // CAUTION: The priority is 1-indexed
             priority: data.selectedEvents.indexOf(eventId) + 1,
-            // TODO: Check if the event is not full if priority = 1 and set waitListed to false
-            waitListed: true,
+            waitListed: preferredEvent?.id !== eventId,
           })),
         },
       },
@@ -42,6 +43,26 @@ class UsersRepository {
         registrations: true,
       },
     });
+  }
+
+  private async getTopPriorityEvent(data: UserData) {
+    // TODO: Handle closed events
+    // Retrieve events and count registrations
+    const events = await eventsRepository.getAllAndCountRegistrations();
+
+    // Look for the event with the highest priority and that is not full
+    // const preferredEvents = [];
+    for (const eventId of data.selectedEvents) {
+      const event = events.find((event) => event.id === eventId);
+      if (
+        event &&
+        event._count.registrations < event.capacity &&
+        // TODO: Handle closed events
+        !event.closed
+      ) {
+        return event;
+      }
+    }
   }
 
   // Verify token from signed link
