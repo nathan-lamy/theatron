@@ -16,6 +16,7 @@ model User {
   email         String             @unique
   class         String
   registrations UserRegistration[]
+  Job           Job[]
 }
 
 model Event {
@@ -26,6 +27,7 @@ model Event {
   capacity      Int
   closed        Boolean            @default(false)
   registrations UserRegistration[]
+  Job           Job[]
 }
 
 model UserRegistration {
@@ -41,4 +43,16 @@ model UserRegistration {
   confirmed     Boolean   @default(false)
   waitListed    Boolean   @default(true)
   cancelled     Boolean   @default(false)
+}
+
+model Job {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  event      Event    @relation(fields: [eventId], references: [id])
+  eventId    Int
+  date       DateTime @default(now())
+  type       String
+  occurences Int
+  result     String
 }
