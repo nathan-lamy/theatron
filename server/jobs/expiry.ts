@@ -23,7 +23,7 @@ const check = checkForCriteria({
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running expiry job for event", event);
   await prisma.userRegistration.cancel(registration);
-  await sendEmail("confirmation-expired", {
+  return sendEmail("confirmation-expired", {
     event,
     registration,
   });

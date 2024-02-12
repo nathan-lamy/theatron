@@ -23,7 +23,7 @@ const check = checkForCriteria({
 // Time to confirm : 1 month before the event
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running confirmation job for user #", registration.userId);
-  await prisma.userRegistration.sendConfirmationEmail(registration, event);
+  return prisma.userRegistration.sendConfirmationEmail(registration, event);
 }
 
 export default { timer, check, run };

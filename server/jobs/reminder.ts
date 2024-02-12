@@ -21,7 +21,7 @@ const check = checkForCriteria({
 async function run({ event, registration, days }: JobPayload) {
   console.log("🦊 Running reminder job for event", event);
   // Calculate the number of days before the event
-  await sendEmail("event-reminder", {
+  return sendEmail("event-reminder", {
     event,
     registration,
     includeLink: true,

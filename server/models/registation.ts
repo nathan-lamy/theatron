@@ -76,7 +76,7 @@ export const userRegistration = {
     }
 
     // Send the confirmation email
-    await sendEmail("confirm-registration", {
+    return sendEmail("confirm-registration", {
       event,
       registration,
       includeLink: true,

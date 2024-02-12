@@ -19,7 +19,7 @@ const check = checkForCriteria({
 // Run the job
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running wait-list job for event", event);
-  await sendEmail("on-wait-list", {
+  return sendEmail("on-wait-list", {
     event,
     registration,
     includeLink: true,
