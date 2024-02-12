@@ -9,6 +9,8 @@ export const event = {
         waitListed: true,
       },
       orderBy: {
+        // Sort by priority and date of registration
+        priority: "asc",
         date: "asc",
       },
       take: take,
