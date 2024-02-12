@@ -38,12 +38,30 @@ class EventsRepository {
 
   // Allocate places to wait listed users
   private async allocatePlaces(event: Event) {
-    // TODO: Implement this method
-    // const waitList = await prisma.event.getWaitList(event.id);
-    // for (const registration of waitList) {
-    //   await prisma.userRegistration.removeWaitList(registration);
-    //   await prisma.userRegistration.sendConfirmationEmail(registration, event);
-    // }
+    // Fetch registered users (not cancelled and not wait listed)
+    const registered = await prisma.userRegistration.count({
+      where: {
+        eventId: event.id,
+        cancelled: false,
+        waitListed: false,
+      },
+    });
+    if (registered >= event.capacity) {
+      return console.error(
+        `🦊 Event ${event.name} is over capacity, please check the registrations`
+      );
+    }
+    // Fetch wait listed users
+    // Take the number of places available (capacity - registered)
+    const waitList = await prisma.event.getWaitList(
+      event.id,
+      event.capacity - registered
+    );
+    // Allocate places to wait listed users
+    for (const registration of waitList) {
+      await prisma.userRegistration.removeWaitList(registration);
+      await prisma.userRegistration.sendConfirmationEmail(registration, event);
+    }
   }
 }
 
