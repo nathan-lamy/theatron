@@ -7,6 +7,7 @@ export const event = {
       where: {
         eventId: eventId,
         waitListed: true,
+        cancelled: false,
       },
       orderBy: {
         // Sort by priority and date of registration
