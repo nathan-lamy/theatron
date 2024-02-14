@@ -1,7 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { DndProvider } from "react-dnd";
-import { TouchBackend } from "react-dnd-touch-backend";
-import update from "immutability-helper";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import Layout from "@/components/Layout";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 import { TabsTrigger, TabsList, TabsContent, Tabs } from "@/components/ui/tabs";
@@ -35,6 +47,13 @@ export default function Register() {
   const [events, setEvents] = useState([] as Event[]);
   const [selectedEvents, setSelectedEvents] = useState([] as string[]);
   const [preferenceOrder, setPreferenceOrder] = useState([] as string[]);
+  // Create state for the DnD context
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     // Fetch the events from the API
@@ -99,39 +118,24 @@ export default function Register() {
     setCurrentStep("step3");
   }
 
-  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-    setPreferenceOrder((prevCards: string[]) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-      update(prevCards, {
-        $splice: [
-          [dragIndex, 1],
-          [hoverIndex, 0, prevCards[dragIndex]],
-        ],
-      })
-    );
-  }, []);
-
   const renderCard = useCallback(
     (id: string, index: number) => {
       const event = events.find((event) => event.id.toString() === id);
       if (event)
         return (
-          <EventCard
-            key={`event${id}`}
-            index={index}
-            id={`event-card${id}`}
-            event={event}
-            moveCard={moveCard}
-          />
+          <EventCard key={`event${id}`} index={index} id={id} event={event} />
         );
       else return null;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [events, moveCard]
+    [events]
   );
 
   return (
-    <DndProvider backend={TouchBackend}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
       <Layout>
         <div className="block mx-auto space-y-6">
           <div className="space-y-2 text-center">
@@ -257,7 +261,12 @@ export default function Register() {
                   préférence.
                 </p>
                 <div className="grid grid-cols-1 gap-4">
-                  {preferenceOrder.map(renderCard)}
+                  <SortableContext
+                    items={preferenceOrder}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {preferenceOrder.map(renderCard)}
+                  </SortableContext>
                 </div>
               </div>
             </TabsContent>
@@ -288,6 +297,19 @@ export default function Register() {
           </div>
         </div>
       </Layout>
-    </DndProvider>
+    </DndContext>
   );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over!.id) {
+      setPreferenceOrder((items) => {
+        const oldIndex = items.indexOf(active.id.toString());
+        const newIndex = items.indexOf(over!.id.toString());
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
 }
