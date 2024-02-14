@@ -14,4 +14,19 @@ const redirect = (navigate: NavigateFunction) => ({
     navigate(`/success`, { state: { message } }),
 });
 
+export const formatDate = (date: Date) => {
+  date = new Date(date);
+  // Return the date in French format like this : lundi 1 janvier 2021 à 20h00
+  return date
+    .toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    })
+    .replace(":", "h");
+};
+
 export { ERRORS, SUCCESS, redirect };

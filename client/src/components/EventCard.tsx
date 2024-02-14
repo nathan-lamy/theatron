@@ -2,10 +2,12 @@ import type { Identifier, XYCoord } from "dnd-core";
 import type { FC } from "react";
 import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
+import type { Event } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 export interface CardProps {
   id: string;
-  text: string;
+  event: Event;
   index: number;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
 }
@@ -16,7 +18,7 @@ interface DragItem {
   type: string;
 }
 
-export const EventCard: FC<CardProps> = ({ id, text, index, moveCard }) => {
+export const EventCard: FC<CardProps> = ({ id, event, index, moveCard }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -90,7 +92,7 @@ export const EventCard: FC<CardProps> = ({ id, text, index, moveCard }) => {
     }),
   });
 
-  const opacity = isDragging ? 0 : 1;
+  const opacity = isDragging ? 0.5 : 1;
   drag(drop(ref));
   return (
     <div
@@ -102,7 +104,10 @@ export const EventCard: FC<CardProps> = ({ id, text, index, moveCard }) => {
       <b>
         {index + 1}. {" "}
       </b>
-      {text}
+      {event.name}
+      <span className="text-sm text-slate-800 dark:text-gray-200">
+        , le {formatDate(event.date)}
+      </span>
     </div>
   );
 };

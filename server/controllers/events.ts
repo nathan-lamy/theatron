@@ -84,4 +84,11 @@ export const events = new Elysia()
             success: true,
           };
         })
-  );
+  )
+  .get("/events", async () => {
+    const events = await eventsRepository.getAll();
+    return {
+      events: events.map(prisma.event.serialize),
+      success: true,
+    };
+  });

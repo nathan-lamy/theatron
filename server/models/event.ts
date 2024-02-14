@@ -19,6 +19,6 @@ export const event = {
   },
   // TODO:
   serialize(event: Event) {
-    return {};
+    return event;
   },
 };

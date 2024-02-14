@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
 import update from "immutability-helper";
 import Layout from "@/components/Layout";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Event, client } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 import { EventCard } from "@/components/EventCard";
 
 export default function Register() {
@@ -29,10 +31,22 @@ export default function Register() {
   const [lastName, setLastName] = useState("");
   const [classLevel, setClassLevel] = useState("");
   const [classNumber, setClassNumber] = useState("");
-  // Create state for the selected events
+  // Create state for the selected events and the preference order
+  const [events, setEvents] = useState([] as Event[]);
   const [selectedEvents, setSelectedEvents] = useState([] as string[]);
-  // Create state for the order of preference
   const [preferenceOrder, setPreferenceOrder] = useState([] as string[]);
+
+  useEffect(() => {
+    // Fetch the events from the API
+    const req = client.events.get();
+    void req.then(({ data, error }) => {
+      // TODO:
+      if (error) return;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (!data["success"]) return;
+      setEvents(data.events as Event[]);
+    });
+  }, []);
 
   function handleSubmit() {
     // Handle form submission
@@ -97,24 +111,29 @@ export default function Register() {
     );
   }, []);
 
-  const renderCard = useCallback((id: string, index: number) => {
-    return (
-      <EventCard
-        key={`event${id}`}
-        index={index}
-        id={`event-card${id}`}
-        text={`Event 4 - Date: 25/12/2024 ${id}`}
-        moveCard={moveCard}
-      />
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const renderCard = useCallback(
+    (id: string, index: number) => {
+      const event = events.find((event) => event.id.toString() === id);
+      if (event)
+        return (
+          <EventCard
+            key={`event${id}`}
+            index={index}
+            id={`event-card${id}`}
+            event={event}
+            moveCard={moveCard}
+          />
+        );
+      else return null;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [events, moveCard]
+  );
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={TouchBackend}>
       <Layout>
-        <div className="mx-auto max-w-[600px] space-y-6">
+        <div className="block mx-auto space-y-6">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Inscription au théâtre 🎭</h1>
             <p className="text-gray-500 dark:text-gray-400">
@@ -123,7 +142,7 @@ export default function Register() {
             </p>
           </div>
           <Tabs className="w-full" value={currentStep}>
-            <TabsList className="flex">
+            <TabsList className="hidden lg:flex">
               <TabsTrigger value="step1">
                 Étape 1 : Informations personnelles
               </TabsTrigger>
@@ -178,7 +197,7 @@ export default function Register() {
                       required
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Choisissez votre classe" />
+                        <SelectValue placeholder="Votre classe" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -207,35 +226,27 @@ export default function Register() {
             </TabsContent>
             <TabsContent value="step2">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex space-x-2">
-                    <Checkbox
-                      id="event1"
-                      defaultChecked={selectedEvents.includes("1")}
-                    />
-                    <Label htmlFor="event1">Event 1 - Date: 12/12/2024</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Checkbox
-                      id="event2"
-                      defaultChecked={selectedEvents.includes("2")}
-                    />
-                    <Label htmlFor="event2">Event 2 - Date: 15/12/2024</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Checkbox
-                      id="event3"
-                      defaultChecked={selectedEvents.includes("3")}
-                    />
-                    <Label htmlFor="event3">Event 3 - Date: 20/12/2024</Label>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Checkbox
-                      id="event4"
-                      defaultChecked={selectedEvents.includes("4")}
-                    />
-                    <Label htmlFor="event4">Event 4 - Date: 25/12/2024</Label>
-                  </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {events.map((event) => (
+                    <div
+                      className="flex space-x-2 items-center"
+                      key={event.id.toString()}
+                    >
+                      <Checkbox
+                        id={`event${event.id}`}
+                        defaultChecked={selectedEvents.includes(
+                          event.id.toString()
+                        )}
+                      />
+                      <Label htmlFor={`event${event.id}`}>
+                        {event.name}
+                        <br />
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Le {formatDate(event.date)}
+                        </span>
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </TabsContent>
@@ -255,7 +266,7 @@ export default function Register() {
           <div className="flex space-x-4">
             {currentStep === "step1" ? null : (
               <Button
-                className="w-full"
+                className="w-full shadow"
                 type="button"
                 onClick={() =>
                   setCurrentStep("step" + (Number(currentStep[4]) - 1))
@@ -266,7 +277,11 @@ export default function Register() {
                 Retour
               </Button>
             )}
-            <Button className="w-full" type="button" onClick={handleSubmit}>
+            <Button
+              className="w-full shadow"
+              type="button"
+              onClick={handleSubmit}
+            >
               Poursuivre l&apos;inscription
               <ArrowRightIcon className="mr-2 h-4 w-4" />
             </Button>
