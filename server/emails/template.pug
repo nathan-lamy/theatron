@@ -1,0 +1,28 @@
+include components.pug
+
+mixin template(title, description, button, footer)
+  table(width='100%' border='0' cellspacing='0' cellpadding='0' style='width: 100% !important')
+    tr
+      td(align='center')
+        table(style='border: 1px solid #eaeaea; border-radius: 5px; margin: 40px 0' width='600' border='0' cellspacing='0' cellpadding='40')
+          tr
+            td(align='center')
+              div(style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI','Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans','Droid Sans', 'Helvetica Neue', sans-serif;text-align: left;width: 465px;")
+                +header(title)
+                  | #{description}
+                +title
+                  | #{event.name}
+                  br
+                  | #{event.details}
+                if block
+                  +text
+                    block
+                if (button)
+                  br
+                  +button-container(button)
+                  +text
+                    | Ou copiez-collez ce lien dans votre navigateur :
+                  +text
+                    a(href=link target='_blank' style='color: #067df7; text-decoration: none')
+                      | #{link}
+                +footer(footer)

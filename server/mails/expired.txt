@@ -1,6 +1,0 @@
-Bonjour {{user.name}},
-
-Sans réponse de votre part, votre place pour "{{event.name}}" a été réattribuée.
-
-Bien cordialement
-A. Saly

@@ -1,0 +1,12 @@
+| Bonjour #{user.name},
+|
+| Vous êtes inscrit au spectacle suivant :
+| #{event.name}
+|
+| Pour rappel, la représentation aura lieu #{relativeTime}.
+| Je vous remercie par avance de bien vouloir m'informer d'un éventuel désistement en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
+| #{link}
+|
+if (daysBeforeEvent >= 7)
+    | Vous continuerez à recevoir régulièrement des mails, jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement.
+| Bien Cordialement, A. Saly

@@ -23,8 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# Project specific files
-credentials.json
-token.json
+# Secret files
 .env*
-database.sqlite

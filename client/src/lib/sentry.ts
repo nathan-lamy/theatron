@@ -5,7 +5,7 @@ Sentry.init({
   integrations: [
     new Sentry.BrowserTracing({
       // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-      tracePropagationTargets: ["localhost", import.meta.env.VITE_API_URL],
+      tracePropagationTargets: ["localhost", import.meta.env.VITE_API_URL!],
     }),
     new Sentry.Replay({
       maskAllText: false,
