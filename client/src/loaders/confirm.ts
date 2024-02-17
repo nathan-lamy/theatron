@@ -3,20 +3,23 @@ import { ERRORS } from "@/lib/messages";
 import { LoaderFunctionArgs } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
-// TODO: Update this mock data
 const MOCK_DATA = {
   event: {
-    date: "01/01/2000",
-    details: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     id: "1",
-    title: "Lorem ipsum",
+    title: "Mock Event",
+    name: "Mock Event",
+    details: "Mock Event",
+    date: new Date(1, 1, 2024),
   },
   user: {
-    email: "adrien.saly@ac-nice.fr",
-    name: "Adrien Saly",
-    hasConfirmed: false,
+    email: "email@email.email",
+    name: "Mock User",
   },
-  confirmBeforeDate: "01/01/2000",
+  registration: {
+    confirmed: false,
+    waitListed: false,
+    confirmBefore: "2022-01-01",
+  },
 };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {

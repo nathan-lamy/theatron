@@ -14,22 +14,39 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/api";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { ERRORS, SUCCESS, redirect } from "@/lib/utils";
+import { ERRORS, SUCCESS, formatDate, redirect } from "@/lib/utils";
 
 export default function ConfirmPage() {
-  // TODO: useLoaderData() type
-  const withSuspense = useLoaderData() as () => any;
-  const { event, user, confirmBeforeDate, error } = withSuspense();
+  const withSuspense = useLoaderData() as () => {
+    event: {
+      id: string;
+      title: string;
+      name: string;
+      details: string;
+      date: Date;
+    };
+    user: {
+      email: string;
+      name: string;
+    };
+    registration: {
+      confirmed: boolean;
+      waitListed: boolean;
+      confirmBefore: string;
+    };
+    error: string;
+  };
+  const { event, user, registration, error } = withSuspense();
 
   const navigate = useNavigate();
   const { toError, toSuccess } = redirect(navigate);
   useEffect(() => {
-    if (error) toError(error);
+    if (error) toError({ title: "Une erreur est survenue", message: error });
   }, [error, toError]);
 
   // Canceling state (for UI)
   const [isCanceling, setIsCanceling] = useState(
-    !!user.hasConfirmed || !!user.onWaitList
+    !!registration.confirmed || !!registration.waitListed
   );
   const [reason, setReason] = useState("");
   // Loading state for API calls (button disabled)
@@ -72,9 +89,11 @@ export default function ConfirmPage() {
         </h1>
         <Card className="w-full max-w-md mx-auto">
           <CardHeader>
-            <CardTitle className="text-2xl">{event.title}</CardTitle>
+            <CardTitle className="text-2xl">{event.name}</CardTitle>
             {event.details && (
-              <CardTitle className="font-medium">{event.details}</CardTitle>
+              <CardTitle className="font-medium">
+                Le {formatDate(event.date)} {event.details}
+              </CardTitle>
             )}
             <CardDescription>
               {isCanceling ? (
@@ -87,7 +106,8 @@ export default function ConfirmPage() {
                 <>
                   Vous êtes pré-inscrit à ce spectacle.
                   <br />
-                  Veuillez <b>confirmer avant le {confirmBeforeDate}</b> pour
+                  Veuillez{" "}
+                  <b>confirmer avant le {registration.confirmBefore}</b> pour
                   valider définitivement, faute de quoi votre place sera
                   réattribuée.
                 </>
@@ -133,8 +153,10 @@ export default function ConfirmPage() {
                   <Button
                     className="flex-1"
                     variant="outline"
-                    onClick={() => !user.onWaitList && setIsCanceling(false)}
-                    disabled={isLoading || user.onWaitList}
+                    onClick={() =>
+                      !registration.waitListed && setIsCanceling(false)
+                    }
+                    disabled={isLoading || registration.waitListed}
                   >
                     ANNULER
                   </Button>

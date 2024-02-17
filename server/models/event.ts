@@ -21,7 +21,6 @@ export const event = {
       take: take,
     });
   },
-  // TODO:
   serialize(event: Event) {
     return event;
   },

@@ -1,5 +1,5 @@
 import { eventsRepository } from "@/repositories/events";
-import { sendEmail } from "@/services/email";
+import { sendEmail, toDateString } from "@/services/email";
 import { prisma } from "@/src/setup";
 import type { Event, UserRegistration } from "@prisma/client";
 
@@ -96,8 +96,11 @@ export const userRegistration = {
         return err;
       });
   },
-  //   TODO:
   serialize(registration: UserRegistration) {
-    return {};
+    return {
+      ...registration,
+      confirmBefore:
+        registration.confirmBefore && toDateString(registration.confirmBefore),
+    };
   },
 };

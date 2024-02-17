@@ -121,7 +121,7 @@ export async function sendAttendanceSheet(event: Event) {
   });
 }
 
-function toDateString(date: Date) {
+export function toDateString(date: Date) {
   // Format the date to DD/MM/YYYY
   return date.toLocaleDateString("fr-FR", {
     day: "2-digit",
