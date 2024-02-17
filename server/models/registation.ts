@@ -32,6 +32,7 @@ export const userRegistration = {
       if (firstOnWaitList) {
         // Give the first member on wait list the opportunity to register
         await prisma.userRegistration.removeWaitList(firstOnWaitList);
+        // TODO: confirmBefore = 2 weeks before the event
         await prisma.userRegistration.sendConfirmationEmail(firstOnWaitList);
       }
     }
@@ -67,7 +68,7 @@ export const userRegistration = {
     if (!registration.confirmBefore) {
       // Set the confirm before date to 4 weeks before the event
       const confirmBefore = new Date(event.date);
-      confirmBefore.setDate(confirmBefore.getDate() - 2 * 7);
+      confirmBefore.setDate(confirmBefore.getDate() - 4 * 7);
       // Save the confirm before date
       await prisma.userRegistration.setConfirmBeforeDate(
         registration,

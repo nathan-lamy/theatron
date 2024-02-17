@@ -78,7 +78,8 @@ Au plus tôt, deux mois avant chaque spectacle, les places sont affectées aux �
 
 ![Screenshot of confirmation mail](docs/confirmation-mail.png)
 
-**Remarque** : Les élèves sont **obligés de [confirmer leur pré-inscription](#page-de-confirmation-de-pré-inscription)** en cliquant sur le lien fourni dans le mail de confirmation. En cas d'absence de confirmation après **deux semaines**, l'inscription est annulée et l'élève est automatiquement retiré de la liste des inscrits. De plus, les élèves qui ne confirment pas leur pré-inscription sont automatiquement mis en **dernière position sur la liste d'attente** pour TOUS les spectacles.
+**Remarque** : Les élèves sont **obligés de [confirmer leur pré-inscription](#page-de-confirmation-de-pré-inscription)** en cliquant sur le lien fourni dans le mail de confirmation. Le mail de confirmation est envoyé **deux mois** avant le spectacle, pendant **quatre semaines**. En cas d'absence de confirmation après ce délai, l'inscription est annulée et l'élève est automatiquement retiré de la liste des inscrits. De plus, les élèves qui ne confirment pas leur pré-inscription sont automatiquement mis en **dernière position sur la liste d'attente** pour TOUS les spectacles.
+La place de l'élève est alors automatiquement attribuée à l'élève suivant sur la liste d'attente qui recevra alors un mail l'invitant à [confirmer son inscription](#mail-de-confirmation-de-pré-inscription) sous un délai de **deux semaines**.
 
 ![Screenshot of expiry mail](docs/expiry-mail.png)
 
