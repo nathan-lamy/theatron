@@ -23,6 +23,8 @@ const email = new Email({
   },
 });
 
+const SMTP_FROM = `${Bun.env.SMTP_FROM_NAME} <${Bun.env.SMTP_FROM_EMAIL}>`;
+
 export async function sendEmail(
   template: string,
   {
@@ -52,6 +54,7 @@ export async function sendEmail(
   return email.send({
     template,
     message: {
+      from: SMTP_FROM,
       to: user.email,
     },
     locals: {
@@ -74,6 +77,7 @@ export async function sendRegistrationConfirmation(user: User) {
   return email.send({
     template: "registered",
     message: {
+      from: SMTP_FROM,
       to: user.email,
     },
     locals: {
