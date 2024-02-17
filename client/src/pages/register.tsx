@@ -254,6 +254,9 @@ export default function Register() {
               </div>
             </TabsContent>
             <TabsContent value="step2">
+              <p className="text-gray-600 dark:text-gray-400 my-4">
+                Sélectionnez les spectacles auxquels vous souhaitez assister.
+              </p>
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   {events.map((event) => (
@@ -280,11 +283,20 @@ export default function Register() {
               </div>
             </TabsContent>
             <TabsContent value="step3">
+              <p className="text-gray-600 dark:text-gray-400 pb-2">
+                Classez les spectacles que vous avez sélectionnés par ordre de
+                préférence.
+                <br />
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 pb-4">
+                Seul l&apos;inscription au premier spectacle est une garantie
+                d&apos;avoir une place à condition qu&apos;il ne soit pas encore
+                complet.
+                <br />
+                Si un spectacle est complet, vous pouvez tout de même vous y
+                inscrire sur liste d&apos;attente.
+              </p>
               <div className="space-y-4">
-                <p className="text-gray-500 dark:text-gray-400">
-                  Classez les spectacles que vous avez sélectionnés par ordre de
-                  préférence.
-                </p>
                 <div className="grid grid-cols-1 gap-4">
                   <SortableContext
                     items={preferenceOrder}
