@@ -105,6 +105,18 @@ class UsersRepository {
       },
     });
   }
+
+  // Retrieve user registrations (used in services/email.ts for registration confirmation)
+  public async getUserRegistrations(user: User) {
+    return prisma.userRegistration.findMany({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        event: true,
+      },
+    });
+  }
 }
 
 export const usersRepository = new UsersRepository();

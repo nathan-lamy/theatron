@@ -66,6 +66,31 @@ export async function sendEmail(
   });
 }
 
+export async function sendRegistrationConfirmation(user: User) {
+  // Retrieve the user's registrations
+  const registrations = await usersRepository.getUserRegistrations(user);
+  if (!registrations) return;
+  // Send the email
+  return email.send({
+    template: "registered",
+    message: {
+      to: user.email,
+    },
+    locals: {
+      user,
+      registrations: registrations
+        .map((registration) => ({
+          ...registration,
+          event: {
+            ...registration.event,
+            date: toDateString(registration.event.date),
+          },
+        }))
+        .sort((a, b) => a.priority - b.priority),
+    },
+  });
+}
+
 function toDateString(date: Date) {
   // Format the date to DD/MM/YYYY
   return date.toLocaleDateString("fr-FR", {

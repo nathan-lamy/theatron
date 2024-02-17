@@ -1,0 +1,17 @@
+include ../template.pug 
+
++template(
+    "Inscription au théâtre 🎭",
+    "Vous êtes pré-inscrit aux spectacles suivants :",
+    "",
+    "Une fois votre inscription validée, vous recevrez régulièrement un mail, jusqu'à la date du spectacle, vous invitant à me prévenir le plus tôt possible en cas de désistement.",
+    true
+)
+    ul(style="color: #000;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI','Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans','Droid Sans', 'Helvetica Neue', sans-serif;font-size:  14px;line-height:  24px;list-style-type: disc;padding-left:  20px;")
+        each registration in registrations
+            li
+                b #{registration.event.name}
+                | , le #{registration.event.date} (#{registration.waitListed ? 'EN ATTENTE' : 'PRÉ-INSCRIT' })
+    | Veuillez noter que vous devrez 
+    b confirmer votre venu au plus tôt 2 mois avant 
+    | chaque spectacle pour valider définitivement votre inscription. En l&apos;absence de confirmation, votre place sera attribuée &agrave; quelqu&apos;un d&apos;autre.

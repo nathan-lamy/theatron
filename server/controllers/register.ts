@@ -1,6 +1,7 @@
 import { usersRepository } from "@/repositories/users";
 import { email } from "../shared/validator";
 import { Elysia, t } from "elysia";
+import { sendRegistrationConfirmation } from "@/services/email";
 
 export const register = new Elysia().post(
   "/register",
@@ -15,6 +16,7 @@ export const register = new Elysia().post(
       set.status = 409;
       return result;
     }
+    await sendRegistrationConfirmation(result);
     return { success: true };
   },
   {

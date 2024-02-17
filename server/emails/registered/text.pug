@@ -1,0 +1,8 @@
+| Bonjour #{user.name},
+| 
+| Nous sommes ravis de vous informer que votre préinscription pour les spectacles au théâtre a bien été prise en compte. Voici un récapitulatif des spectacles pour lesquels vous êtes pré-inscrit(e) ainsi que le statut de votre inscription :
+| ➤ #{registrations.map(registration => `${registration.event.name}\n     - Date : ${registration.event.date}\n     - Statut de l'inscription : ${registration.waitListed ? 'Liste d\'attente' : 'Pré-inscrit'}`).join('\n➤ ')}
+|
+| Nous vous rappelons que vous recevrez un mail vous demandant de confirmer votre inscription au plus tôt 2 mois avant chaque spectacle. Si vous ne confirmez pas votre inscription dans ce délai, votre place sera réattribuée à une autre personne.
+|
+| Bien Cordialement, A. Saly
