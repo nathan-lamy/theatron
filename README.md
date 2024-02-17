@@ -1,4 +1,4 @@
-# Théatron
+# Théatron 🎭
 
 ## Introduction
 
