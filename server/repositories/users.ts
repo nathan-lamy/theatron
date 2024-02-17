@@ -32,7 +32,7 @@ class UsersRepository {
       data: {
         email: data.email,
         name: `${toTitleCase(data.firstName)} ${data.lastName.toUpperCase()}`,
-        class: `${data.classNumber}${data.classLevel}`,
+        class: `${data.classLevel} ${data.classNumber}`,
         registrations: {
           create: data.selectedEvents.map((eventId) => ({
             eventId: eventId,
@@ -102,6 +102,18 @@ class UsersRepository {
         user: {
           email: email,
         },
+      },
+    });
+  }
+
+  // Retrieve user registrations (used in services/email.ts for registration confirmation)
+  public async getUserRegistrations(user: User) {
+    return prisma.userRegistration.findMany({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        event: true,
       },
     });
   }

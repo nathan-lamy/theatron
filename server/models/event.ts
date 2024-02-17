@@ -9,11 +9,15 @@ export const event = {
         waitListed: true,
         cancelled: false,
       },
-      orderBy: {
+      orderBy: [
         // Sort by priority and date of registration
-        priority: "asc",
-        date: "asc",
-      },
+        {
+          priority: "asc",
+        },
+        {
+          date: "asc",
+        },
+      ],
       take: take,
     });
   },

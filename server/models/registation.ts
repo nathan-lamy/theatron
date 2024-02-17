@@ -81,7 +81,20 @@ export const userRegistration = {
       event,
       registration,
       includeLink: true,
-    });
+    })
+      .then((res) => {
+        console.log(
+          `📧 Sent confirmation email to user #${registration.userId}`
+        );
+        return res;
+      })
+      .catch((err) => {
+        console.error(
+          `📧 Error sending confirmation email to user #${registration.userId}`,
+          err
+        );
+        return err;
+      });
   },
   //   TODO:
   serialize(registration: UserRegistration) {

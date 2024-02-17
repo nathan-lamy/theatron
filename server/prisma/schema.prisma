@@ -47,8 +47,8 @@ model UserRegistration {
 
 model Job {
   id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      Int?
   event       Event    @relation(fields: [eventId], references: [id])
   eventId     Int
   date        DateTime @default(now())

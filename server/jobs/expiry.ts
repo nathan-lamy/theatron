@@ -23,6 +23,15 @@ const check = checkForCriteria({
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running expiry job for event", event);
   await prisma.userRegistration.cancel(registration);
+  // Shadow ban the user from all future events
+  await prisma.userRegistration.updateMany({
+    where: {
+      userId: registration.userId,
+    },
+    data: {
+      priority: 99,
+    },
+  });
   return sendEmail("confirmation-expired", {
     event,
     registration,

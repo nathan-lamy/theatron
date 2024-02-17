@@ -1,7 +1,7 @@
 import { eventsRepository } from "@/repositories/events";
 import { usersRepository } from "@/repositories/users";
 import { prisma } from "@/src/setup";
-import { email } from "@/shared/validator";
+import { email } from "../shared/validator";
 import { UserRegistration } from "@prisma/client";
 import { Elysia, t } from "elysia";
 

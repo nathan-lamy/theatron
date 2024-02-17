@@ -24,6 +24,11 @@ export const ERRORS = {
     message:
       "Vous ne pouvez pas effectuer cette action car vous êtes sur la liste d'attente pour ce spectacle. Vous recevrez un mail si une place se libère.",
   },
+  EMAIL_ALREADY_REGISTERED: {
+    title: "Cette adresse email est déjà enregistrée",
+    message:
+      "Vous êtes déjà inscrit(e) au théâtre. Si vous pensez que c'est une erreur, veuillez contacter votre professeur par mail.",
+  },
 };
 
 export const SUCCESS = {
@@ -36,5 +41,11 @@ export const SUCCESS = {
     title: "Votre inscription au spectacle a été annulée",
     message:
       "Je vous remercie d'avoir prévenu. Votre place a été libérée et sera attribuée à la prochaine personne sur la liste d'attente.",
+  },
+  REGISTERED: {
+    title:
+      "Vous êtes bien pré-inscrit(e) pour le(s) spectacle(s) sélectionné(s) !",
+    message:
+      "Vous recevrez un mail de confirmation dans quelques instants. Vous devrez confirmer votre inscription en cliquant sur le lien que vous recevrez par mail deux mois avant chaque spectacle, sous peine de perdre votre place.",
   },
 };

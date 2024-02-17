@@ -1,17 +1,19 @@
 import { usersRepository } from "@/repositories/users";
 import type { Event, User, UserRegistration } from "@prisma/client";
 import Email from "email-templates";
-import nodemailer from "nodemailer";
+import { generateAttendance } from "./attendance";
 
 const email = new Email({
-  preview: Bun.env.NODE_ENV === "development" && {
-    open: {
-      app: "google-chrome",
-      wait: false,
-    },
-  },
-  send: Bun.env.NODE_ENV === "production",
-  transport: nodemailer.createTransport({
+  preview: false,
+  // Bun.env.NODE_ENV === "development" && {
+  //   open: {
+  //     app: "google-chrome",
+  //     wait: false,
+  //   },
+  // },
+  send: true,
+  // send: Bun.env.NODE_ENV === "production",
+  transport: {
     host: Bun.env.SMTP_HOST,
     port: 465,
     secure: true,
@@ -19,8 +21,10 @@ const email = new Email({
       user: Bun.env.SMTP_USER,
       pass: Bun.env.SMTP_PASSWORD,
     },
-  }),
+  },
 });
+
+const SMTP_FROM = `${Bun.env.SMTP_FROM_NAME} <${Bun.env.SMTP_FROM_EMAIL}>`;
 
 export async function sendEmail(
   template: string,
@@ -51,14 +55,68 @@ export async function sendEmail(
   return email.send({
     template,
     message: {
+      from: SMTP_FROM,
       to: user.email,
     },
     locals: {
       user,
       event,
-      registration,
+      registration: {
+        ...registration,
+        confirmBefore: toDateString(registration!.confirmBefore!),
+      },
       ...additionalData,
-      functions: { toDateString },
+    },
+  });
+}
+
+export async function sendRegistrationConfirmation(user: User) {
+  // Retrieve the user's registrations
+  const registrations = await usersRepository.getUserRegistrations(user);
+  if (!registrations) return;
+  // Send the email
+  return email.send({
+    template: "registered",
+    message: {
+      from: SMTP_FROM,
+      to: user.email,
+    },
+    locals: {
+      user,
+      registrations: registrations
+        .map((registration) => ({
+          ...registration,
+          event: {
+            ...registration.event,
+            date: toDateString(registration.event.date),
+          },
+        }))
+        .sort((a, b) => a.priority - b.priority),
+    },
+  });
+}
+
+export async function sendAttendanceSheet(event: Event) {
+  // Retrieve the users who confirmed their attendance
+  const sheet = await generateAttendance(event);
+  // Add the sheet to the email as an attachment and send it
+  return email.send({
+    template: "attendance-sheet",
+    message: {
+      from: SMTP_FROM,
+      to: Bun.env.SMTP_FROM_EMAIL,
+      attachments: [
+        {
+          filename: `attendance-sheet-${event.id}.pdf`,
+          content: sheet,
+        },
+      ],
+    },
+    locals: {
+      event,
+      user: {
+        name: Bun.env.SMTP_FROM_NAME,
+      },
     },
   });
 }

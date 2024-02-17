@@ -1,4 +1,6 @@
+import { prisma } from "@/src/setup";
 import { Event, User } from "@prisma/client";
+import puppeteer from "puppeteer";
 
 function sortUsersByClass(users: User[]) {
   const classOrder = { Seconde: 0, Première: 1, Terminale: 2 } as Record<
@@ -25,7 +27,7 @@ function sortUsersByClass(users: User[]) {
   return users;
 }
 
-export const generateAttendanceSheet = async (event: Event, users: User[]) => {
+const generateAttendancePage = async (event: Event, users: User[]) => {
   return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -39,12 +41,12 @@ export const generateAttendanceSheet = async (event: Event, users: User[]) => {
         }
         th, td {
             border: 1px solid black;
-            padding: 8px;
+            padding: 4px;
             text-align: center;
         }
         .big-checkbox {
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
         }
     </style>
     </head>
@@ -55,13 +57,13 @@ export const generateAttendanceSheet = async (event: Event, users: User[]) => {
     <table>
     <thead>
         <tr>
-        <th>Prénom et nom</th>
+        <th>Prénom et Nom</th>
         <th>Classe</th>
         <th>Présent</th>
         </tr>
     </thead>
     <tbody>
-        ${users
+        ${sortUsersByClass(users)
           .map((user) => {
             return `<tr>
                 <td>${user.name}</td>
@@ -77,26 +79,34 @@ export const generateAttendanceSheet = async (event: Event, users: User[]) => {
     </html>`;
 };
 
-// Mock data
-const event = { name: "Formation JavaScript" };
-// Class must be Seconde, Première, or Terminale and a letter or a number
-// Mock 20 users
-const users = [
-  { name: "John Doe", class: "Seconde A" },
-  { name: "Jane Doe", class: "Seconde B" },
-  { name: "Alice", class: "Seconde C" },
-  { name: "Bob", class: "Seconde D" },
-  { name: "Charlie", class: "Seconde E" },
-  // Terminale
-  { name: "John Doe", class: "Terminale A" },
-  { name: "Jane Doe", class: "Terminale B" },
-  { name: "Alice", class: "Terminale C" },
-  { name: "Bob", class: "Terminale D" },
-  { name: "Charlie", class: "Terminale E" },
-  // Première
-  { name: "John Doe", class: "Première A" },
-  { name: "Jane Doe", class: "Première B" },
-  { name: "Alice", class: "Première C" },
-  { name: "Bob", class: "Première D" },
-  { name: "Charlie", class: "Première E" },
-];
+const generateAttendancePDF = async (html: string) => {
+  // Generate the PDF
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  await page.setContent(html, { waitUntil: "networkidle0" });
+  const pdf = await page.pdf({
+    format: "A4",
+    margin: { top: "10px", right: "20px", bottom: "10px", left: "20px" },
+  });
+
+  await browser.close();
+  return pdf;
+};
+
+export const generateAttendance = async (event: Event) => {
+  const users = await prisma.user.findMany({
+    where: {
+      registrations: {
+        some: {
+          eventId: event.id,
+          confirmed: true,
+          cancelled: false,
+          waitListed: false,
+        },
+      },
+    },
+  });
+  const html = await generateAttendancePage(event, users);
+  return generateAttendancePDF(html);
+};
