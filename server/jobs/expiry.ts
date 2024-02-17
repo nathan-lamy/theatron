@@ -10,6 +10,7 @@ import { prisma } from "@/src/setup";
 
 // The number of days before the event to send the email
 // 1 month = 4 weeks before the event
+// TODO: Run if confirmBefore >= Date.now()
 const timer = shouldRunJobByDays([4 * 7]);
 
 // Wether the job should run for a registered user or not

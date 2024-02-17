@@ -37,11 +37,11 @@ Il est possible de renseigner :
 - Les détails du spectacle (`details`) par exemple l'heure du rendez-vous "(rendez-vous à 19h30)"
 - Le nombre de places disponibles (`capacity`)
 
-**⚠️ Attention :** Le premier champ `id` est automatiquement généré par Supabase et ne doit pas être renseigné !
+**⚠️ Attention :** Le premier champ `id` est automatiquement généré par Supabase et ne doit pas être renseigné.
 
 **⚠️ Attention :** Le dernier champ `closed` est automatiquement mis à `false` et ne doit pas être changé ! Un spectacle est fermé automatiquement deux mois avant sa date lorsque les places sont affectées. Si un élève s'inscrit après la fermeture, il est automatiquement mis sur liste d'attente si le spectacle est complet ou sur liste d'inscription si des places sont disponibles.
 
-## Inscriptions
+## Inscriptions aux spectacles
 
 Pour s'inscrire à un spectacle, il suffit de se rendre sur la page d'inscription `/register`.
 
@@ -71,3 +71,62 @@ _Exception à ce qui précède : Afin de compléter les spectacles, si un élèv
 **⚠️ Attention :** Chaque élève, représenté par son adresse mail, ne peut s'inscrire qu'une seule fois. Si il tente de s'inscrire une deuxième fois, il sera automatiquement redirigé vers une page d'erreur.
 
 ![Screenshot of registration error](docs/registration-error.png)
+
+## Mail de confirmation de pré-inscription
+
+Au plus tôt, deux mois avant chaque spectacle, les places sont affectées aux élèves inscrits. Dans un premier temps, les élèves ayant choisi un spectacle en première position sont inscrits puis les élèves ayant choisi un spectacle en deuxième position, etc. Les élèves inscrits reçoivent alors un mail de confirmation de leur inscription et sont automatiquement retirés de la liste d'attente.
+
+![Screenshot of confirmation mail](docs/confirmation-mail.png)
+
+**Remarque** : Les élèves sont **obligés de [confirmer leur pré-inscription](#page-de-confirmation-de-pré-inscription)** en cliquant sur le lien fourni dans le mail de confirmation. En cas d'absence de confirmation après **deux semaines**, l'inscription est annulée et l'élève est automatiquement retiré de la liste des inscrits. De plus, les élèves qui ne confirment pas leur pré-inscription sont automatiquement mis en **dernière position sur la liste d'attente** pour TOUS les spectacles.
+
+![Screenshot of expiry mail](docs/expiry-mail.png)
+
+## Mail de position sur la liste d'attente
+
+Les élèves sur liste d'attente reçoivent également un mail pour leur indiquer leur position dans la liste d'attente et leur rappeler qu'ils seront automatiquement inscrits si des places se libèrent. Ils peuvent également [se désister](#page-de-désistement) en cliquant sur le lien fourni dans le mail.
+
+![Screenshot of waiting list mail](docs/waiting-list-mail.png)
+
+## Mail de rappel
+
+Chaque semaine, à partir d'un mois avant chaque spectacle, un mail de rappel est envoyé à tous les élèves inscrits pour leur rappeler leur inscription et leur demander de [se désister](#page-de-désistement) s'ils ne peuvent plus assister au spectacle.
+
+![Screenshot of reminder mail](docs/reminder-mail.png)
+
+**Remarque :** Les élèves reçoivent également le même mail de rappel la veille du spectacle puis le jour J pour leur rappeler leur inscription.
+
+## Page de confirmation de pré-inscription
+
+Si un élève reçoit un [mail de confirmation](#mail-de-confirmation-de-pré-inscription), il doit cliquer sur le lien fourni pour confirmer son inscription.
+
+Il est alors redirigé vers une page de confirmation où il peut vérifier les informations de son inscription. Il doit alors cliquer sur le bouton `Confirmer` pour valider son inscription.
+
+![Screenshot of confirmation form](docs/confirmation-form.png)
+
+Il sera alors redirigé vers une page de succès.
+
+![Screenshot of confirmation success](docs/confirmation-success.png)
+
+## Page de désistement
+
+Si un élève ne peut plus assister au spectacle, il peut se désister en cliquant sur le lien fourni dans le [mail de confirmation](#mail-de-confirmation-de-pré-inscription), [de rappel](#mail-de-rappel), ou [de position sur la liste d'attente](#mail-de-position-sur-la-liste-dattente).
+
+Il est alors redirigé vers une page de désistement où il peut renseigner la raison de son absence.
+
+![Screenshot of unregistration form](docs/unregistration-form.png)
+
+Il sera alors automatiquement retiré de la liste des inscrits et redirigé vers une page de succès.
+
+![Screenshot of unregistration success](docs/unregistration-success.png)
+
+Sa place sera alors automatiquement attribuée à l'élève suivant sur la liste d'attente qui recevra alors un mail l'invitant à [confirmer son inscription](#mail-de-confirmation-de-pré-inscription).
+
+## Feuille de présence
+
+Pour chaque spectacle, une feuille de présence est automatiquement générée et envoyée par mail à l'adresse fournie par le professeur responsable du spectacle.
+
+![Screenshot of attendance sheet mail](docs/attendance-sheet-mail.png)
+![Screenshot of attendance sheet](docs/attendance-sheet.png)
+
+La feuille de présence est envoyée **une semaine** avant le spectacle, puis **la veille** du spectacle pour rappeler au professeur de l'imprimer.
