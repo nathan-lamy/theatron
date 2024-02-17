@@ -4,7 +4,10 @@ import { Elysia } from "elysia";
 import { events } from "../controllers/events";
 import { register } from "../controllers/register";
 
-export const app = new Elysia().use(cors()).use(events).use(register);
+export const app = new Elysia()
+  .use(cors({ methods: "*" }))
+  .use(events)
+  .use(register);
 export type App = typeof app;
 
 import { Event as PrismaEvent } from "@prisma/client";

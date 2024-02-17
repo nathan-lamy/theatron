@@ -17,6 +17,7 @@ const check = checkForCriteria({
 });
 
 // Run the job
+// TODO: Add wait list rank to the email, to let the user know where they are on the list
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running wait-list job for event", event);
   return sendEmail("on-wait-list", {
