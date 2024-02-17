@@ -13,21 +13,10 @@ export interface JobPayload {
  * @param daysBefore The number or array of numbers representing the threshold of days before the event.
  * @returns A function that takes an event object and returns either an array of days or false.
  */
-export function shouldRunJobByDays(
-  daysBefore: number | number[],
-  { useRegistrationDate }: { useRegistrationDate?: boolean } = {}
-) {
+export function shouldRunJobByDays(daysBefore: number | number[]) {
   return (event: Event, registration: UserRegistration) => {
     // Calculate the difference in days between the event date and the current date
-    if (
-      useRegistrationDate &&
-      (!registration.confirmBefore || registration.confirmBefore <= new Date())
-    ) {
-      return false;
-    }
-    const days = getDaysDiff(
-      useRegistrationDate ? registration.confirmBefore! : event.date
-    );
+    const days = getDaysDiff(event.date);
 
     // If daysBefore is an array, find the minimum number of days before the event
     if (Array.isArray(daysBefore)) {

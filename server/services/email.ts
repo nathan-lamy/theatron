@@ -1,17 +1,18 @@
 import { usersRepository } from "@/repositories/users";
 import type { Event, User, UserRegistration } from "@prisma/client";
 import Email from "email-templates";
-import nodemailer from "nodemailer";
 
 const email = new Email({
-  preview: Bun.env.NODE_ENV === "development" && {
-    open: {
-      app: "google-chrome",
-      wait: false,
-    },
-  },
-  send: Bun.env.NODE_ENV === "production",
-  transport: nodemailer.createTransport({
+  preview: false,
+  // Bun.env.NODE_ENV === "development" && {
+  //   open: {
+  //     app: "google-chrome",
+  //     wait: false,
+  //   },
+  // },
+  send: true,
+  // send: Bun.env.NODE_ENV === "production",
+  transport: {
     host: Bun.env.SMTP_HOST,
     port: 465,
     secure: true,
@@ -19,7 +20,7 @@ const email = new Email({
       user: Bun.env.SMTP_USER,
       pass: Bun.env.SMTP_PASSWORD,
     },
-  }),
+  },
 });
 
 export async function sendEmail(
@@ -56,9 +57,11 @@ export async function sendEmail(
     locals: {
       user,
       event,
-      registration,
+      registration: {
+        ...registration,
+        confirmBefore: toDateString(registration!.confirmBefore!),
+      },
       ...additionalData,
-      functions: { toDateString },
     },
   });
 }

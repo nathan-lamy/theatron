@@ -32,7 +32,7 @@ class UsersRepository {
       data: {
         email: data.email,
         name: `${toTitleCase(data.firstName)} ${data.lastName.toUpperCase()}`,
-        class: `${data.classNumber}${data.classLevel}`,
+        class: `${data.classLevel} ${data.classNumber}`,
         registrations: {
           create: data.selectedEvents.map((eventId) => ({
             eventId: eventId,

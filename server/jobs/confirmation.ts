@@ -9,9 +9,7 @@ import { prisma } from "@/src/setup";
 
 // The number of days before the event to send the email
 // 8 weeks before the event up to 5 weeks before the event
-const timer = shouldRunJobByDays([8 * 7, 7 * 7, 6 * 7, 5 * 7], {
-  useRegistrationDate: true,
-});
+const timer = shouldRunJobByDays([8 * 7, 7 * 7, 6 * 7, 5 * 7]);
 
 // Wether the job should run for a registered user or not
 const check = checkForCriteria({

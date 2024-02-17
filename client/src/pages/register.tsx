@@ -30,8 +30,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Event, client } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
+import { ERRORS, SUCCESS, formatDate, redirect } from "@/lib/utils";
 import { EventCard } from "@/components/EventCard";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   // Create state for the current step
@@ -54,6 +55,9 @@ export default function Register() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+  // Navigation functions
+  const navigate = useNavigate();
+  const { toError, toSuccess } = redirect(navigate);
 
   useEffect(() => {
     // Fetch the events from the API
@@ -67,15 +71,19 @@ export default function Register() {
     });
   }, []);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     // Handle form submission
-    let handler: (() => string | undefined) | undefined;
+    let handler:
+      | (() => string | undefined | Promise<string | void>)
+      | undefined;
     if (currentStep === "step1") handler = handleFirstStep;
     if (currentStep === "step2") handler = handleSecondStep;
-    if (currentStep === "step3") handler = handleThirdStep;
+    if (currentStep === "step3") handler = register;
     if (!handler) return;
     // If there is an error, display it
-    const error = handler();
+    // If handler return a promise, wait for it to resolve
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    const error = await handler();
     if (error) setError(error);
     else setError("");
   }
@@ -116,6 +124,23 @@ export default function Register() {
     }
     // Handle the second step of the form
     setCurrentStep("step3");
+  }
+
+  async function register() {
+    // TODO: Loading state for API calls (button disabled)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { data, error } = await client.register.post({
+      email,
+      firstName,
+      lastName,
+      classLevel,
+      classNumber,
+      selectedEvents: preferenceOrder.map(Number),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (data?.success) toSuccess(SUCCESS.REGISTERED);
+    else if (error?.status === 409) toError(ERRORS.EMAIL_ALREADY_REGISTERED);
+    else toError();
   }
 
   const renderCard = useCallback(
@@ -205,9 +230,9 @@ export default function Register() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="seconde">Seconde</SelectItem>
-                          <SelectItem value="premiere">Première</SelectItem>
-                          <SelectItem value="terminale">Terminale</SelectItem>
+                          <SelectItem value="Seconde">Seconde</SelectItem>
+                          <SelectItem value="Première">Première</SelectItem>
+                          <SelectItem value="Terminale">Terminale</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -289,7 +314,7 @@ export default function Register() {
             <Button
               className="w-full shadow"
               type="button"
-              onClick={handleSubmit}
+              onClick={() => void handleSubmit()}
             >
               Poursuivre l&apos;inscription
               <ArrowRightIcon className="mr-2 h-4 w-4" />
