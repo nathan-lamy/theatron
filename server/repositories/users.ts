@@ -25,7 +25,7 @@ class UsersRepository {
   // Register user
   public async register(data: UserData) {
     // TODO: Block registration for past events
-    // TODO: or if the event is really soon ??
+    // TODO: or if the event is really soon ?? 3 days before the event
     // Get the top priority event(s) (multiple events if some are closed)
     const preferredEvents = await this.getTopPriorityEvent(data);
     return prisma.user.create({
