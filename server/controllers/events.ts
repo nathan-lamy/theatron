@@ -36,7 +36,6 @@ export const events = new Elysia()
           set.status = 404;
           return { error: "UNKNOWN_REGISTRATION" };
         }
-        // TODO: Implement this error in front-end & merge with the previous one (same status code, different error message)
         if (registration.cancelled) {
           set.status = 401;
           return { error: "CANCELLED_REGISTRATION" };
@@ -73,7 +72,6 @@ export const events = new Elysia()
           }
         )
         // GET : Retrieve member and event info
-        // TODO: Cache this request
         .get("/", async ({ store: { registration } }) => {
           const user = await usersRepository.getUserById(registration.userId);
           const event = await eventsRepository.getById(registration.eventId);

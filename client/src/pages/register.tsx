@@ -63,7 +63,7 @@ export default function Register() {
     // Fetch the events from the API
     const req = client.events.get();
     void req.then(({ data, error }) => {
-      // TODO:
+      // TODO: Error handling
       if (error) return;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (!data["success"]) return;
