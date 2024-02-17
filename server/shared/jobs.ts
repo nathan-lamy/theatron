@@ -14,7 +14,7 @@ export interface JobPayload {
  * @returns A function that takes an event object and returns either an array of days or false.
  */
 export function shouldRunJobByDays(daysBefore: number | number[]) {
-  return (event: Event, registration: UserRegistration) => {
+  return (event: Event) => {
     // Calculate the difference in days between the event date and the current date
     const days = getDaysDiff(event.date);
 

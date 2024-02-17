@@ -95,12 +95,6 @@ const generateAttendancePDF = async (html: string) => {
 };
 
 export const generateAttendance = async (event: Event) => {
-  console.log({
-    eventId: event.id,
-    confirmed: true,
-    cancelled: false,
-    waitListed: false,
-  });
   const users = await prisma.user.findMany({
     where: {
       registrations: {
