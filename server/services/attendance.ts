@@ -1,3 +1,4 @@
+import { prisma } from "@/src/setup";
 import { Event, User } from "@prisma/client";
 import puppeteer from "puppeteer";
 
@@ -93,8 +94,25 @@ const generateAttendancePDF = async (html: string) => {
   return pdf;
 };
 
-export const generateAttendance = async (event: Event, users: User[]) => {
+export const generateAttendance = async (event: Event) => {
+  console.log({
+    eventId: event.id,
+    confirmed: true,
+    cancelled: false,
+    waitListed: false,
+  });
+  const users = await prisma.user.findMany({
+    where: {
+      registrations: {
+        some: {
+          eventId: event.id,
+          confirmed: true,
+          cancelled: false,
+          waitListed: false,
+        },
+      },
+    },
+  });
   const html = await generateAttendancePage(event, users);
-  const pdf = await generateAttendancePDF(html);
-  return pdf;
+  return generateAttendancePDF(html);
 };

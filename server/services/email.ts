@@ -1,6 +1,7 @@
 import { usersRepository } from "@/repositories/users";
 import type { Event, User, UserRegistration } from "@prisma/client";
 import Email from "email-templates";
+import { generateAttendance } from "./attendance";
 
 const email = new Email({
   preview: false,
@@ -91,6 +92,31 @@ export async function sendRegistrationConfirmation(user: User) {
           },
         }))
         .sort((a, b) => a.priority - b.priority),
+    },
+  });
+}
+
+export async function sendAttendanceSheet(event: Event) {
+  // Retrieve the users who confirmed their attendance
+  const sheet = await generateAttendance(event);
+  // Add the sheet to the email as an attachment and send it
+  return email.send({
+    template: "attendance-sheet",
+    message: {
+      from: SMTP_FROM,
+      to: Bun.env.SMTP_FROM_EMAIL,
+      attachments: [
+        {
+          filename: `attendance-sheet-${event.id}.pdf`,
+          content: sheet,
+        },
+      ],
+    },
+    locals: {
+      event,
+      user: {
+        name: Bun.env.SMTP_FROM_NAME,
+      },
     },
   });
 }
