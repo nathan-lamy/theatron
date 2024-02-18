@@ -65,7 +65,9 @@ export async function sendEmail(
       event,
       registration: {
         ...registration,
-        confirmBefore: toDateString(registration!.confirmBefore!),
+        confirmBefore: registration?.confirmBefore
+          ? toDateString(registration!.confirmBefore!)
+          : undefined,
       },
       ...additionalData,
     },

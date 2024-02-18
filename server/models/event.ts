@@ -52,7 +52,7 @@ export const event = {
    * (sorted by priority and date of registration)
    * and take the first n registrations
    */
-  async getWaitList(eventId: number, take: number = 1) {
+  async getWaitList(eventId: number, take?: number) {
     return prisma.userRegistration.findMany({
       where: {
         eventId: eventId,

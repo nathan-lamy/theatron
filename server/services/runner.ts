@@ -11,6 +11,7 @@ const jobs = [confirmation, waitList, reminder, expiry];
 // TODO: CRON job
 // TODO: Improve jobs logging
 // TODO: Add error handling to router
+// TODO: Lighter job results
 /**
  * Runs all the jobs for the events that are not closed and have not passed yet.
  */

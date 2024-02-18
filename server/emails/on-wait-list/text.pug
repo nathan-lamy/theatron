@@ -3,6 +3,10 @@
 | Vous êtes sur liste d'attente pour le spectacle suivant : 
 | #{event.name}
 | 
+if position === 1
+    | Vous êtes le prochain sur la liste d'attente. 
+else
+    | Vous êtes en position ##{position} sur la liste d'attente.
 | A ce jour, il n'y a plus de places disponibles mais vous serez recontacté si une place se libère.
 | Si vous n'êtes plus intéressé, merci de me prévenir en cliquant sur le lien ci-dessous (ou en le copiant dans votre navigateur) :
 | #{link}

@@ -6,6 +6,7 @@ import {
   type JobPayload,
   checkForCriteria,
 } from "@/shared/jobs";
+import { prisma } from "@/src/setup";
 
 // The number of days before the event to send the email
 // 2 months = 8 weeks (or less if the event is sooner)
@@ -17,13 +18,19 @@ const check = checkForCriteria({
 });
 
 // Run the job
-// TODO: Add wait list rank to the email, to let the user know where they are on the list
 async function run({ event, registration }: JobPayload) {
   console.log("🦊 Running wait-list job for event", event);
+  // Find user's position on wait list
+  const registrations = await prisma.event.getWaitList(event.id);
+  const position =
+    registrations.findIndex((reg) => reg.id === registration.id) + 1;
   return sendEmail("on-wait-list", {
     event,
     registration,
     includeLink: true,
+    additionalData: {
+      position,
+    },
   });
 }
 
