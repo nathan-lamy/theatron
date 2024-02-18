@@ -1,9 +1,8 @@
-import { eventsRepository } from "@/repositories/events";
-import { usersRepository } from "@/repositories/users";
 import { prisma } from "@/src/setup";
 import { email } from "../shared/validator";
 import { UserRegistration } from "@prisma/client";
 import { Elysia, t } from "elysia";
+import { auth } from "@/services/auth";
 
 export const events = new Elysia()
   .state("registration", {} as UserRegistration)
@@ -22,13 +21,13 @@ export const events = new Elysia()
         store,
       }) => {
         // Verify the user token
-        if (!usersRepository.verifyToken(token, { eventId, email })) {
+        if (!auth.verifyToken(token, { eventId, email })) {
           set.status = 403;
           return { error: "INVALID_TOKEN" };
         }
         // Retrieve user registration and event informations
         const parsedEventId = parseInt(eventId);
-        const registration = await usersRepository.getUserRegistration(
+        const registration = await prisma.user.getRegistration(
           parsedEventId,
           email
         );
@@ -73,8 +72,8 @@ export const events = new Elysia()
         )
         // GET : Retrieve member and event info
         .get("/", async ({ store: { registration } }) => {
-          const user = await usersRepository.getUserById(registration.userId);
-          const event = await eventsRepository.getById(registration.eventId);
+          const user = await prisma.user.getById(registration.userId);
+          const event = await prisma.event.getById(registration.eventId);
           return {
             user: prisma.user.serialize(user!),
             registration: prisma.userRegistration.serialize(registration),
@@ -84,7 +83,7 @@ export const events = new Elysia()
         })
   )
   .get("/events", async () => {
-    const events = await eventsRepository.getAll();
+    const events = await prisma.event.getAll();
     return {
       events: events.map(prisma.event.serialize),
       success: true,

@@ -2,15 +2,18 @@ import attendance from "@/jobs/attendance";
 import confirmation from "@/jobs/confirmation";
 import reminder from "@/jobs/reminder";
 import waitList from "@/jobs/wait-list";
-import { eventsRepository } from "@/repositories/events";
 import { prisma } from "@/src/setup";
 import { Event, UserRegistration } from "@prisma/client";
 
 const jobs = [confirmation, waitList, reminder];
 
+// TODO: CRON job
+/**
+ * Runs all the jobs for the events that are not closed and have not passed yet.
+ */
 export default async function runner() {
   // Retrieve all closed events
-  const events = await eventsRepository.getAll({ includesRegistrations: true });
+  const events = await prisma.event.getAll({ includesRegistrations: true });
   for (const event of events.filter((event) => event.date >= new Date())) {
     // Loop through all the jobs (filter the ones that already ran)
     // and check if they should run
@@ -37,6 +40,9 @@ export default async function runner() {
   }
 }
 
+/**
+ * Handles the job by closing the event, checking if the job already ran for the user, and running the job.
+ */
 async function handleJob({
   event,
   job,
@@ -57,7 +63,7 @@ async function handleJob({
     console.log(
       `🦊 Closing event ${event.name} before running job ${job.name}`
     );
-    await eventsRepository.close(event);
+    await prisma.event.close(event);
     event.closed = true;
   }
   // Check if the job already ran for the user

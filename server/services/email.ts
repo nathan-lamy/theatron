@@ -1,18 +1,20 @@
-import { usersRepository } from "@/repositories/users";
 import type { Event, User, UserRegistration } from "@prisma/client";
 import Email from "email-templates";
 import { generateAttendance } from "./attendance";
+import { prisma } from "@/src/setup";
+import { auth } from "./auth";
 
 const email = new Email({
   preview: false,
+  // NOTE: FOR DEVELOPMENT ONLY
   // Bun.env.NODE_ENV === "development" && {
   //   open: {
   //     app: "google-chrome",
   //     wait: false,
   //   },
   // },
-  send: true,
   // send: Bun.env.NODE_ENV === "production",
+  send: true,
   transport: {
     host: Bun.env.SMTP_HOST,
     port: 465,
@@ -44,11 +46,11 @@ export async function sendEmail(
 ) {
   // If the user is not provided, get it from the registration
   if (!user) {
-    user = (await usersRepository.getUserById(registration!.userId))!;
+    user = (await prisma.user.getById(registration!.userId))!;
   }
   // Generate the confirmation link
   if (includeLink) {
-    const link = usersRepository.generateSignedLink(user, event);
+    const link = auth.generateSignedLink(user, event);
     additionalData = { ...additionalData, link };
   }
   // Send the email
@@ -72,7 +74,7 @@ export async function sendEmail(
 
 export async function sendRegistrationConfirmation(user: User) {
   // Retrieve the user's registrations
-  const registrations = await usersRepository.getUserRegistrations(user);
+  const registrations = await prisma.user.getRegistrationsWithEvents(user);
   if (!registrations) return;
   // Send the email
   return email.send({

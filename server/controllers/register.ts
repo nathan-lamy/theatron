@@ -1,12 +1,12 @@
-import { usersRepository } from "@/repositories/users";
 import { email } from "../shared/validator";
 import { Elysia, t } from "elysia";
 import { sendRegistrationConfirmation } from "@/services/email";
+import { prisma } from "@/src/setup";
 
 export const register = new Elysia().post(
   "/register",
   async ({ body, set }) => {
-    const result = await usersRepository.register(body).catch((error) => {
+    const result = await prisma.user.register(body).catch((error) => {
       if (error.code === "P2002") {
         return { error: "EMAIL_ALREADY_REGISTERED" };
       }
