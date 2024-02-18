@@ -67,6 +67,7 @@ export const userRegistration = {
     if (!registration.confirmBefore) {
       // Set the confirm before date to 4 weeks before the event
       const confirmBefore = new Date(event.date);
+      // TODO: Set time to confirm half of the time before the event
       confirmBefore.setDate(confirmBefore.getDate() - 4 * 7);
       // Save the confirm before date
       await prisma.userRegistration.setConfirmBeforeDate(

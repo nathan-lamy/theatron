@@ -1,13 +1,16 @@
 import attendance from "@/jobs/attendance";
 import confirmation from "@/jobs/confirmation";
+import expiry from "@/jobs/expiry";
 import reminder from "@/jobs/reminder";
 import waitList from "@/jobs/wait-list";
 import { prisma } from "@/src/setup";
 import { Event, UserRegistration } from "@prisma/client";
 
-const jobs = [confirmation, waitList, reminder];
+const jobs = [confirmation, waitList, reminder, expiry];
 
 // TODO: CRON job
+// TODO: Improve jobs logging
+// TODO: Add error handling to router
 /**
  * Runs all the jobs for the events that are not closed and have not passed yet.
  */
